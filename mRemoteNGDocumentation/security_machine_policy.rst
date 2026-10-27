@@ -16,12 +16,11 @@ The encryption settings consumer supports ``RequireFullEncryption`` (boolean),
 and ``MinimumKdfIterations`` (0 for no minimum, otherwise 1000 through 10000000).
 Cipher combinations must also be supported by the existing crypto provider.
 
-The typed contract additionally reserves ``RequireMasterPassword``,
+Additional policy values are ``RequireMasterPassword``,
 ``MinimumMasterPasswordLength`` (0 through 1024 UTF-16 code units),
 ``RequireUppercase``, ``RequireLowercase``, ``RequireDigit``,
 ``RequireSpecialCharacter``, ``AllowPersistentUnlock``, ``AllowPasswordExport``
-and ``AllowPlaintextExport`` for their separate enforcement changes. These flags
-alone are not an enforcement claim until the corresponding consumers are installed.
+and ``AllowPlaintextExport``. Their enforcement is described below.
 No password or unlock key belongs in the registry.
 
 Master password requirements

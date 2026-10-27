@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>mRemoteNG Security</displayName>
+  <description>Maschinenweite Sicherheitsrichtlinien für mRemoteNG</description>
+  <resources>
+    <stringTable>
+      <string id="Product">mRemoteNG</string>
+      <string id="Security">Sicherheit</string>
+      <string id="Supported">mRemoteNG mit Unterstützung maschinenweiter Sicherheitsrichtlinien</string>
+      <string id="RequireMasterPassword">Persönliches Masterpasswort verlangen</string>
+      <string id="RequireMasterPassword_Help">Öffentlichen Standardschlüssel und leere Masterpasswörter ablehnen. Zeichenklassen, Mindestlänge und Vollverschlüsselung können auch bei deaktivierter Option ein persönliches Passwort verlangen. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="AllowPersistentUnlock">Dauerhafte Entsperrschlüssel erlauben</string>
+      <string id="AllowPersistentUnlock_Help">Diese Richtlinie deaktivieren, um gespeicherte Masterpasswörter und automatisches DPAPI-Entsperren auch bei direkten Provider-Aufrufen zu verbieten. Vorhandene Cache-Dateien werden nicht automatisch gelöscht. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="MinimumMasterPasswordLength">Mindestlänge des Masterpassworts</string>
+      <string id="MinimumMasterPasswordLength_Help">UTF-16-Codeeinheiten ohne Kürzung oder Normalisierung zählen. Eine positive Mindestlänge verlangt auch ein persönliches Masterpasswort. Der Editor beginnt bei 16; einen freigegebenen Firmenwert wählen. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="RequireUppercase">Großbuchstaben verlangen</string>
+      <string id="RequireUppercase_Help">Mindestens einen Unicode-Großbuchstaben im persönlichen Masterpasswort verlangen. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="RequireLowercase">Kleinbuchstaben verlangen</string>
+      <string id="RequireLowercase_Help">Mindestens einen Unicode-Kleinbuchstaben im persönlichen Masterpasswort verlangen. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="RequireDigit">Ziffer verlangen</string>
+      <string id="RequireDigit_Help">Mindestens eine Unicode-Ziffer im persönlichen Masterpasswort verlangen. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="RequireSpecialCharacter">Sonderzeichen verlangen</string>
+      <string id="RequireSpecialCharacter_Help">Ein Zeichen verlangen, das weder Unicode-Buchstabe, Ziffer noch Leerraum ist. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="RequireFullEncryption">Vollständige Verbindungsdatei verschlüsseln</string>
+      <string id="RequireFullEncryption_Help">Verschlüsselten XML-Inhalt und ein persönliches Masterpasswort verlangen. CSV und das alte SQL-Verbindungsformat erfüllen diese Vorgabe nicht und werden abgewiesen. Nicht konforme Bestandsdateien vor dem Rollout migrieren. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="AllowPasswordExport">Passwortexport erlauben</string>
+      <string id="AllowPasswordExport_Help">Deaktivieren, um Verbindungs-, Gateway- und Proxy-Passwörter vom Export auszuschließen. Bestehende Credential-Exportsperren bleiben zusätzlich wirksam. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="AllowPlaintextExport">Klartextexport von Verbindungen erlauben</string>
+      <string id="AllowPlaintextExport_Help">Deaktivieren, um CSV-Serialisierung auch ohne Exportdialog zu sperren. Die Vollverschlüsselungsrichtlinie sperrt CSV zusätzlich unabhängig davon. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="EncryptionEngine">Erforderlicher Verschlüsselungsalgorithmus</string>
+      <string id="EncryptionEngine_Help">Den gewählten Algorithmus für neue verschlüsselte Daten und konforme Verbindungsdateien verlangen. Abweichende Einstellungen erfordern eine ausdrückliche Migration. Deaktiviert oder nicht konfiguriert entfernt diese Vorgabe. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="BlockCipherMode">Erforderlicher authentifizierter Verschlüsselungsmodus</string>
+      <string id="BlockCipherMode_Help">Den gewählten unterstützten Modus verlangen. Alte SQL-Verbindungen erfüllen konfigurierte Algorithmusvorgaben nicht. Deaktiviert oder nicht konfiguriert entfernt diese Vorgabe. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="MinimumKdfIterations">Mindestzahl der Schlüsselableitungsiterationen</string>
+      <string id="MinimumKdfIterations_Help">Geprüften Mindestwert von 1000 bis 10000000 setzen. Der Anfangswert des Editors ist keine Sicherheitsempfehlung. Freigegebene Client-Hardware messen. Schwächere Bestandsdaten erfordern eine ausdrückliche Migration. Änderungen werden nach einem Neustart von mRemoteNG wirksam. Nicht konfigurierte Werte erhalten das bisherige Verhalten; ungültige konfigurierte Werte werden nicht still durch schwächere Werte ersetzt.</string>
+      <string id="AES">AES</string>
+      <string id="Serpent">Serpent</string>
+      <string id="Twofish">Twofish</string>
+      <string id="GCM">GCM</string>
+      <string id="EAX">EAX</string>
+      <string id="CCM">CCM</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="MinimumMasterPasswordLength">
+        <decimalTextBox refId="MinimumMasterPasswordLength" defaultValue="16" spin="true" spinStep="1">Mindestlänge des Masterpassworts:</decimalTextBox>
+      </presentation>
+      <presentation id="EncryptionEngine">
+        <dropdownList refId="EncryptionEngine" noSort="true" defaultItem="0">Erforderlicher Verschlüsselungsalgorithmus:</dropdownList>
+      </presentation>
+      <presentation id="BlockCipherMode">
+        <dropdownList refId="BlockCipherMode" noSort="true" defaultItem="0">Erforderlicher authentifizierter Verschlüsselungsmodus:</dropdownList>
+      </presentation>
+      <presentation id="MinimumKdfIterations">
+        <decimalTextBox refId="MinimumKdfIterations" defaultValue="100000" spin="true" spinStep="1">Mindestzahl der Schlüsselableitungsiterationen:</decimalTextBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

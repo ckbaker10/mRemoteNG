@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>mRemoteNG Security</displayName>
+  <description>Machine security policy for mRemoteNG</description>
+  <resources>
+    <stringTable>
+      <string id="Product">mRemoteNG</string>
+      <string id="Security">Security</string>
+      <string id="Supported">mRemoteNG builds supporting machine security policy</string>
+      <string id="RequireMasterPassword">Require a personal master password</string>
+      <string id="RequireMasterPassword_Help">Reject the public legacy key and empty master passwords. Character-class, length and full-encryption requirements can also require a personal password even when this flag is disabled. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="AllowPersistentUnlock">Allow persistent unlock keys</string>
+      <string id="AllowPersistentUnlock_Help">Disable this policy to prohibit stored master passwords and automatic DPAPI unlock, including direct provider calls. Existing cache files are not deleted automatically. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="MinimumMasterPasswordLength">Minimum master password length</string>
+      <string id="MinimumMasterPasswordLength_Help">Count UTF-16 code units without trimming or normalization. Enabling a positive minimum also requires a personal master password. The editor starts at 16; select your organization's approved value. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="RequireUppercase">Require an uppercase letter</string>
+      <string id="RequireUppercase_Help">Require at least one Unicode uppercase letter in a personal master password. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="RequireLowercase">Require a lowercase letter</string>
+      <string id="RequireLowercase_Help">Require at least one Unicode lowercase letter in a personal master password. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="RequireDigit">Require a digit</string>
+      <string id="RequireDigit_Help">Require at least one Unicode digit in a personal master password. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="RequireSpecialCharacter">Require a special character</string>
+      <string id="RequireSpecialCharacter_Help">Require a character that is neither a Unicode letter, digit nor whitespace. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="RequireFullEncryption">Require full connection-file encryption</string>
+      <string id="RequireFullEncryption_Help">Require encrypted XML content and a personal master password. CSV and the legacy SQL connection format cannot meet this requirement and are rejected. Migrate existing noncompliant files before rollout. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="AllowPasswordExport">Allow password export</string>
+      <string id="AllowPasswordExport_Help">Disable to exclude connection, gateway and proxy passwords from exports. Existing credential export restrictions remain additional limits. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="AllowPlaintextExport">Allow plaintext connection export</string>
+      <string id="AllowPlaintextExport_Help">Disable to block CSV serialization even when called without the export dialog. Full-encryption policy also blocks CSV independently. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="EncryptionEngine">Required encryption engine</string>
+      <string id="EncryptionEngine_Help">Require the selected supported engine for new encrypted data and compliant connection files. Settings with other parameters require explicit migration. Disabled or not configured removes this constraint. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="BlockCipherMode">Required authenticated cipher mode</string>
+      <string id="BlockCipherMode_Help">Require the selected supported cipher mode. Legacy SQL connections cannot meet configured cipher requirements. Disabled or not configured removes this constraint. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="MinimumKdfIterations">Minimum key derivation iterations</string>
+      <string id="MinimumKdfIterations_Help">Set a tested minimum from 1000 through 10000000. The editor's initial value is not a security recommendation. Benchmark your approved client hardware. Existing weaker data requires explicit migration. Restart mRemoteNG after changes. Missing values retain unmanaged behavior; invalid configured values do not silently fall back to weaker settings.</string>
+      <string id="AES">AES</string>
+      <string id="Serpent">Serpent</string>
+      <string id="Twofish">Twofish</string>
+      <string id="GCM">GCM</string>
+      <string id="EAX">EAX</string>
+      <string id="CCM">CCM</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="MinimumMasterPasswordLength">
+        <decimalTextBox refId="MinimumMasterPasswordLength" defaultValue="16" spin="true" spinStep="1">Minimum master password length:</decimalTextBox>
+      </presentation>
+      <presentation id="EncryptionEngine">
+        <dropdownList refId="EncryptionEngine" noSort="true" defaultItem="0">Required encryption engine:</dropdownList>
+      </presentation>
+      <presentation id="BlockCipherMode">
+        <dropdownList refId="BlockCipherMode" noSort="true" defaultItem="0">Required authenticated cipher mode:</dropdownList>
+      </presentation>
+      <presentation id="MinimumKdfIterations">
+        <decimalTextBox refId="MinimumKdfIterations" defaultValue="100000" spin="true" spinStep="1">Minimum key derivation iterations:</decimalTextBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>
