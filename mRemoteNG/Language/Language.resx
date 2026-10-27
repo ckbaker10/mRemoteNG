@@ -2975,4 +2975,10 @@ Nightly Channel includes Alphas, Betas &amp; Release Candidates.</value>
   <data name="MultiAddressHostnameDidNotMatchIp" xml:space="preserve">
     <value>Multi-address plugin: the saved hostname for '{0}' did not match the saved IP address. Using the saved IP address.</value>
   </data>
+  <data name="ChangeConnectionFileMasterPassword" xml:space="preserve">
+    <value>Change connection file master password...</value>
+  </data>
+  <data name="ChangeConnectionFileMasterPasswordFailed" xml:space="preserve">
+    <value>Could not change the connection file master password.</value>
+  </data>
 </root>

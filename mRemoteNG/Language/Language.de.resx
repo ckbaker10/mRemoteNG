@@ -2129,4 +2129,10 @@ Nightly umfasst Alphas, Betas und Release Candidates.</value>
   <data name="Enabled" xml:space="preserve">
     <value>Aktiviert</value>
   </data>
+  <data name="ChangeConnectionFileMasterPassword" xml:space="preserve">
+    <value>Masterpasswort der Verbindungsdatei ändern...</value>
+  </data>
+  <data name="ChangeConnectionFileMasterPasswordFailed" xml:space="preserve">
+    <value>Das Masterpasswort der Verbindungsdatei konnte nicht geändert werden.</value>
+  </data>
 </root>

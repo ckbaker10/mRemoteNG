@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Linq;
+using System.Security;
 using mRemoteNG.App;
 using mRemoteNG.Connection;
 using mRemoteNG.Properties;
 using mRemoteNG.Security;
+using mRemoteNG.Tools;
 using mRemoteNG.UI.Forms;
 using mRemoteNG.UI.Window;
 using mRemoteNG.Resources.Language;
@@ -19,6 +22,7 @@ namespace mRemoteNG.UI.Menu
         private ToolStripMenuItem _mMenFileLoad;
         private ToolStripMenuItem _mMenFileSave;
         private ToolStripMenuItem _mMenFileSaveAs;
+        private ToolStripMenuItem _mMenFileChangeMasterPassword;
         private ToolStripMenuItem _mMenFileExit;
         private ToolStripSeparator _mMenFileSep2;
         private ToolStripSeparator _mMenFileSep1;
@@ -36,6 +40,7 @@ namespace mRemoteNG.UI.Menu
             _mMenFileLoad = new ToolStripMenuItem();
             _mMenFileSave = new ToolStripMenuItem();
             _mMenFileSaveAs = new ToolStripMenuItem();
+            _mMenFileChangeMasterPassword = new ToolStripMenuItem();
             _mMenFileSep2 = new ToolStripSeparator();
             _mMenFileSep1 = new ToolStripSeparator();
             _mMenFileExit = new ToolStripMenuItem();
@@ -50,6 +55,7 @@ namespace mRemoteNG.UI.Menu
                 _mMenFileLoad,
                 _mMenFileSave,
                 _mMenFileSaveAs,
+                _mMenFileChangeMasterPassword,
                 _mMenFileSep1,
                 _mMenToolsOptions,
                 _mMenFileSep2,
@@ -93,6 +99,11 @@ namespace mRemoteNG.UI.Menu
             _mMenFileSaveAs.Size = new System.Drawing.Size(281, 22);
             _mMenFileSaveAs.Text = Language.SaveConnectionFileAs;
             _mMenFileSaveAs.Click += mMenFileSaveAs_Click;
+            _mMenFileChangeMasterPassword.Name = "mMenFileChangeMasterPassword";
+            _mMenFileChangeMasterPassword.Text = Language.ResourceManager.GetString("ChangeConnectionFileMasterPassword", Language.Culture);
+            _mMenFileChangeMasterPassword.Click += ChangeMasterPassword_Click;
+            DropDownOpening += (_, _) => _mMenFileChangeMasterPassword.Enabled =
+                Runtime.ConnectionsService?.CanChangeMasterPassword == true;
             // 
             // mMenFileSep2
             // 
@@ -129,11 +140,30 @@ namespace mRemoteNG.UI.Menu
             _mMenFileLoad.Text = Language.OpenConnectionFile;
             _mMenFileSave.Text = Language.SaveConnectionFile;
             _mMenFileSaveAs.Text = Language.SaveConnectionFileAs;
+            _mMenFileChangeMasterPassword.Text = Language.ResourceManager.GetString("ChangeConnectionFileMasterPassword", Language.Culture);
             _mMenToolsOptions.Text = Language.Options;
             _mMenFileExit.Text = Language.Exit;
         }
 
         #region File
+
+        private void ChangeMasterPassword_Click(object sender, EventArgs e)
+        {
+            if (Runtime.ConnectionsService?.CanChangeMasterPassword != true) return;
+            try
+            {
+                var selected = MiscTools.PasswordDialog(
+                    Language.ResourceManager.GetString("ChangeConnectionFileMasterPassword", Language.Culture), true);
+                if (!selected.Any()) return;
+                using SecureString password = selected.First();
+                Runtime.ConnectionsService.ChangeMasterPassword(password.ConvertToUnsecureString());
+            }
+            catch (Exception ex)
+            {
+                Runtime.MessageCollector.AddExceptionMessage(
+                    Language.ResourceManager.GetString("ChangeConnectionFileMasterPasswordFailed", Language.Culture), ex);
+            }
+        }
 
         private void mMenFileNew_Click(object sender, EventArgs e)
         {
