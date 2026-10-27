@@ -25,7 +25,11 @@ namespace mRemoteNGTests.Security
             Directory.CreateDirectory(directory);
             string path = Path.Combine(directory, "connections.xml");
             var root = new RootNodeInfo(RootNodeType.Connection) { PasswordString = OldPassword };
-            root.AddChild(new ConnectionInfo { Name = "Synthetic connection", Password = "synthetic-connection-password" });
+            var connection = new ConnectionInfo { Name = "Synthetic connection", Password = "synthetic-connection-password" };
+            // New connections copy the shared default inheritance, which other tests may leave
+            // switched on; an inherited password is serialized empty by design.
+            connection.Inheritance.TurnOffInheritanceCompletely();
+            root.AddChild(connection);
             var model = new ConnectionTreeModel();
             model.AddRootNode(root);
             var saver = new XmlConnectionsSaver(path, new SaveFilter());
