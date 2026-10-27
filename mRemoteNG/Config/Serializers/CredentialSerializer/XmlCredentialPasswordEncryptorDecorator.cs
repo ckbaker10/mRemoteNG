@@ -4,6 +4,7 @@ using System.Security;
 using System.Xml.Linq;
 using mRemoteNG.Credential;
 using mRemoteNG.Security;
+using mRemoteNG.Security.Policy;
 
 namespace mRemoteNG.Config.Serializers.CredentialSerializer
 {
@@ -11,8 +12,10 @@ namespace mRemoteNG.Config.Serializers.CredentialSerializer
     {
         private readonly ISerializer<IEnumerable<ICredentialRecord>, string> _baseSerializer;
         private readonly ICryptographyProvider _cryptographyProvider;
+        private readonly SecurityPolicy _policy;
 
-        public XmlCredentialPasswordEncryptorDecorator(ICryptographyProvider cryptographyProvider, ISerializer<IEnumerable<ICredentialRecord>, string> baseSerializer)
+        public XmlCredentialPasswordEncryptorDecorator(ICryptographyProvider cryptographyProvider, ISerializer<IEnumerable<ICredentialRecord>, string> baseSerializer,
+            SecurityPolicy policy = null)
         {
             if (baseSerializer == null)
                 throw new ArgumentNullException(nameof(baseSerializer));
@@ -21,6 +24,7 @@ namespace mRemoteNG.Config.Serializers.CredentialSerializer
 
             _baseSerializer = baseSerializer;
             _cryptographyProvider = cryptographyProvider;
+            _policy = policy ?? MachineSecurityPolicy.Current;
         }
 
 
@@ -29,6 +33,8 @@ namespace mRemoteNG.Config.Serializers.CredentialSerializer
             if (credentialRecords == null)
                 throw new ArgumentNullException(nameof(credentialRecords));
 
+            SecretStorePolicy.ValidateKey(key, _policy);
+            SecretStorePolicy.ValidateEncryption(_cryptographyProvider, _policy);
             string baseReturn = _baseSerializer.Serialize(credentialRecords);
             string encryptedReturn = EncryptPasswordAttributes(baseReturn, key);
             return encryptedReturn;

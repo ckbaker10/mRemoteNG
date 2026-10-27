@@ -8,11 +8,7 @@ public static class EncryptionPolicy
 {
     public static void Validate(ICryptographyProvider provider)
     {
-        SecurityPolicy policy = MachineSecurityPolicy.Current;
-        if (policy.EncryptionEngine != null && provider.CipherEngine.ToString() != policy.EncryptionEngine
-            || policy.BlockCipherMode != null && provider.CipherMode.ToString() != policy.BlockCipherMode
-            || provider.KeyDerivationIterations < policy.MinimumKdfIterations)
-            throw new InvalidOperationException("Encryption parameters do not meet machine policy.");
+        SecretStorePolicy.ValidateEncryption(provider, MachineSecurityPolicy.Current);
     }
 
     public static void ValidateLegacySql()
