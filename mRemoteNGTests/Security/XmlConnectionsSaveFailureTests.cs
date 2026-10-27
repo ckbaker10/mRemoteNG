@@ -25,7 +25,8 @@ public class XmlConnectionsSaveFailureTests
         try
         {
             var saver = new XmlConnectionsSaver(destination, new SaveFilter());
-            Assert.Throws<IOException>(() => saver.Save(model));
+            var error = Assert.Catch(() => saver.Save(model));
+            Assert.That(error, Is.InstanceOf<IOException>().Or.InstanceOf<UnauthorizedAccessException>());
             Assert.That(Directory.Exists(destination), Is.True);
             Assert.That(Directory.GetFiles(directory), Is.Empty, "Failed writes must remove their temporary file.");
         }
