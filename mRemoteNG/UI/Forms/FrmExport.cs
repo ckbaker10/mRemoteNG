@@ -156,7 +156,8 @@ namespace mRemoteNG.UI.Forms
         {
             cboFileFormat.Items.Clear();
             cboFileFormat.Items.Add(new ExportFormat(SaveFormat.mRXML));
-            cboFileFormat.Items.Add(new ExportFormat(SaveFormat.mRCSV));
+            if (mRemoteNG.Security.Policy.ExportPolicy.AllowsPlaintext(mRemoteNG.Security.Policy.MachineSecurityPolicy.Current))
+                cboFileFormat.Items.Add(new ExportFormat(SaveFormat.mRCSV));
             cboFileFormat.SelectedIndex = 0;
             ApplyTheme();
             ThemeManager.getInstance().ThemeChanged += ApplyTheme;

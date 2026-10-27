@@ -39,3 +39,11 @@ the application does not silently weaken policy for legacy data. Full encryption
 or cipher/KDF requirements reject the legacy SQL format, which cannot provide
 these guarantees. A failed XML serialization is propagated rather than returning
 an empty document that could overwrite the original file.
+
+Export policy
+-------------
+
+``AllowPasswordExport=0`` caps the export filter in addition to existing credential
+restrictions. ``AllowPlaintextExport=0`` or ``RequireFullEncryption=1`` blocks CSV
+serialization, including direct serializer calls. XML export uses the selected
+root's key and honors full encryption; denied operations do not write output.

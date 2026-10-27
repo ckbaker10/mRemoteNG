@@ -41,6 +41,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
 
         public string Serialize(ConnectionInfo serializationTarget)
         {
+            mRemoteNG.Security.Policy.ExportPolicy.ValidatePlaintext(mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
             serializationTarget.ThrowIfNull(nameof(serializationTarget));
             StringBuilder sb = new();
 
