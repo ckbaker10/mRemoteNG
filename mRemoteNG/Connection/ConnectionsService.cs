@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Linq;
 using System.Windows.Forms;
 using mRemoteNG.App;
 using mRemoteNG.App.Info;
@@ -47,6 +48,33 @@ namespace mRemoteNG.Connection
 		public DateTime LastFileUpdate { get; set; }
 
         public ConnectionTreeModel ConnectionTreeModel { get; private set; }
+
+        public bool CanChangeMasterPassword => IsConnectionsFileLoaded && !UsingDatabase &&
+            ProfileDataProvider is null && !_batchingSaves && !string.IsNullOrEmpty(ConnectionFileName);
+
+        public void ChangeMasterPassword(string password)
+        {
+            lock (SaveLock)
+            {
+                if (!CanChangeMasterPassword)
+                    throw new InvalidOperationException("A loaded XML connection file is required for this password change.");
+                RootNodeInfo root = ConnectionTreeModel.RootNodes.OfType<RootNodeInfo>()
+                    .Single(node => node.Type == RootNodeType.Connection);
+                RemoteConnectionsSyncronizer?.Disable();
+                try
+                {
+                    // The ordinary UI save wrapper reports rather than rethrows
+                    // errors. The root transaction must see the atomic save fail.
+                    root.ChangePasswordAndSave(password, () =>
+                        new XmlConnectionsSaver(ConnectionFileName, new SaveFilter()).Save(ConnectionTreeModel));
+                    RaiseConnectionsSavedEvent(ConnectionTreeModel, false, false, ConnectionFileName);
+                }
+                finally
+                {
+                    RemoteConnectionsSyncronizer?.Enable();
+                }
+            }
+        }
 
         public void NewConnectionsFile(string filename)
         {
