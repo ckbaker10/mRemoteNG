@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Linq;
 using System.Windows.Forms;
 using mRemoteNG.App;
 using mRemoteNG.App.Info;
@@ -23,6 +24,7 @@ using mRemoteNG.Properties;
 using mRemoteNG.Config.UserProfiles;
 using mRemoteNG.Config.Serializers.ConnectionSerializers.Xml;
 using mRemoteNG.Security.Factories;
+using mRemoteNG.Security.Policy;
 
 namespace mRemoteNG.Connection
 {
@@ -47,15 +49,50 @@ namespace mRemoteNG.Connection
 
         public ConnectionTreeModel ConnectionTreeModel { get; private set; }
 
+        public bool CanChangeMasterPassword => IsConnectionsFileLoaded && !UsingDatabase &&
+            ProfileDataProvider is null && !_batchingSaves && !string.IsNullOrEmpty(ConnectionFileName);
+
+        public void ChangeMasterPassword(string password)
+        {
+            lock (SaveLock)
+            {
+                if (!CanChangeMasterPassword)
+                    throw new InvalidOperationException("A loaded XML connection file is required for this password change.");
+                RootNodeInfo root = ConnectionTreeModel.RootNodes.OfType<RootNodeInfo>()
+                    .Single(node => node.Type == RootNodeType.Connection);
+                RemoteConnectionsSyncronizer?.Disable();
+                try
+                {
+                    // The ordinary UI save wrapper reports rather than rethrows
+                    // errors. The root transaction must see the atomic save fail.
+                    root.ChangePasswordAndSave(password, () =>
+                        new XmlConnectionsSaver(ConnectionFileName, new SaveFilter()).Save(ConnectionTreeModel));
+                    RaiseConnectionsSavedEvent(ConnectionTreeModel, false, false, ConnectionFileName);
+                }
+                finally
+                {
+                    RemoteConnectionsSyncronizer?.Enable();
+                }
+            }
+        }
+
         public void NewConnectionsFile(string filename)
         {
             try
             {
                 filename.ThrowIfNullOrEmpty(nameof(filename));
+                string password = NewConnectionPassword.Request(MachineSecurityPolicy.Current,
+                    () => MiscTools.PasswordDialog("Connection file master password", true));
                 ConnectionTreeModel newConnectionsModel = new();
-                newConnectionsModel.AddRootNode(new RootNodeInfo(RootNodeType.Connection));
+                var root = new RootNodeInfo(RootNodeType.Connection);
+                if (password != null) root.PasswordString = password;
+                newConnectionsModel.AddRootNode(root);
                 SaveConnections(newConnectionsModel, false, new SaveFilter(), filename, true);
                 LoadConnections(false, false, filename);
+            }
+            catch (OperationCanceledException)
+            {
+                // The password prompt was cancelled; leave existing files and model untouched.
             }
             catch (Exception ex)
             {

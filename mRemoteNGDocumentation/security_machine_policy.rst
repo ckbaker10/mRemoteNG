@@ -33,6 +33,11 @@ imply a personal master password. Length is measured in UTF-16 code units;
 characters are not trimmed or normalized. A special character is neither a
 letter, digit nor whitespace. Rules are checked at creation, loading and saving,
 including direct XML compilation and SQL serialization.
+The shared managed-password validator rejects UTF-16 code units above 255 because
+the existing connection-file PKCS#5 conversion rejects them. This prevents a later
+save failure; the legacy file encoding is not silently changed. Latin-1 characters
+remain supported. The separate settings-envelope format preserves full UTF-8 key
+material, but managed password entry uses the common compatibility restriction.
 
 Existing noncompliant files are rejected. Migrate them before enabling policy;
 the application does not silently weaken policy for legacy data. Full encryption

@@ -41,4 +41,28 @@ public class MasterPasswordValidatorTests
     {
         Assert.DoesNotThrow(() => MasterPasswordValidator.Validate("mR3m", new SecurityPolicy(new Dictionary<string, object>())));
     }
+
+    [Test]
+    public void UnsupportedLegacyKeyIsRejectedBeforeEncryption()
+    {
+        var derivation = new mRemoteNG.Security.KeyDerivation.Pkcs5S2KeyGenerator(256, 1000);
+        var salt = new byte[16]; // Synthetic compatibility test, not a production salt.
+        Assert.Throws<OverflowException>(() => derivation.DeriveKey("mŒ3m", salt));
+        var policy = new SecurityPolicy(new Dictionary<string, object> { ["RequireMasterPassword"] = 1 });
+        Assert.Throws<InvalidOperationException>(() => MasterPasswordValidator.Validate("mŒ3m", policy));
+    }
+
+    [Test]
+    public void UnsupportedCharacterCannotSatisfyManagedUppercaseRule()
+    {
+        var policy = new SecurityPolicy(new Dictionary<string, object> { ["RequireUppercase"] = 1 });
+        Assert.Throws<InvalidOperationException>(() => MasterPasswordValidator.Validate("Đsynthetic1!", policy));
+    }
+
+    [Test]
+    public void UnsupportedCharacterIsRejectedUnderPersonalPasswordRequirement()
+    {
+        var policy = new SecurityPolicy(new Dictionary<string, object> { ["RequireMasterPassword"] = 1 });
+        Assert.Throws<InvalidOperationException>(() => MasterPasswordValidator.Validate(new string('Ġ', 16), policy));
+    }
 }
