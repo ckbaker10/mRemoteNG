@@ -34,6 +34,10 @@ imply a personal master password. Length is measured in UTF-16 code units;
 characters are not trimmed or normalized. A special character is neither a
 letter, digit nor whitespace. Rules are checked at creation, loading and saving,
 including direct XML compilation and SQL serialization.
+The shared validator also checks the effective byte-oriented PKCS#5 password
+used by existing connection formats. Unicode aliases of the public legacy key,
+effective whitespace keys and character classes lost in byte conversion are
+rejected. The legacy file encoding is not silently changed by policy enforcement.
 
 Existing noncompliant files are rejected. Migrate them before enabling policy;
 the application does not silently weaken policy for legacy data. Full encryption

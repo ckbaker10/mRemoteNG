@@ -12,20 +12,28 @@ public static class MasterPasswordValidator
     {
         ArgumentNullException.ThrowIfNull(policy);
         if (!policy.HasPasswordRequirements) return null;
-        if (string.IsNullOrWhiteSpace(password) || password == LegacyDefaultPassword)
+        if (string.IsNullOrWhiteSpace(password))
+            return "Machine policy requires a personal master password.";
+        // Existing connection formats pass the low byte of each UTF-16 code unit
+        // to PKCS#5. Validate that effective key too, so Unicode aliases cannot
+        // reuse the public default or satisfy rules with discarded high bytes.
+        string effective = new(password.Select(c => (char)unchecked((byte)c)).ToArray());
+        if (password == LegacyDefaultPassword || effective == LegacyDefaultPassword || string.IsNullOrWhiteSpace(effective))
             return "Machine policy requires a personal master password.";
         if (password.Length < policy.MinimumMasterPasswordLength)
             return "The master password is shorter than machine policy permits.";
-        if (policy.RequireUppercase && !password.Any(char.IsUpper))
+        if (policy.RequireUppercase && (!password.Any(char.IsUpper) || !effective.Any(char.IsUpper)))
             return "The master password must contain an uppercase letter.";
-        if (policy.RequireLowercase && !password.Any(char.IsLower))
+        if (policy.RequireLowercase && (!password.Any(char.IsLower) || !effective.Any(char.IsLower)))
             return "The master password must contain a lowercase letter.";
-        if (policy.RequireDigit && !password.Any(char.IsDigit))
+        if (policy.RequireDigit && (!password.Any(char.IsDigit) || !effective.Any(char.IsDigit)))
             return "The master password must contain a digit.";
-        if (policy.RequireSpecialCharacter && !password.Any(c => !char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c)))
+        if (policy.RequireSpecialCharacter && (!password.Any(IsSpecial) || !effective.Any(IsSpecial)))
             return "The master password must contain a special character other than whitespace.";
         return null;
     }
+
+    private static bool IsSpecial(char value) => !char.IsLetterOrDigit(value) && !char.IsWhiteSpace(value);
 
     public static void Validate(string password, SecurityPolicy policy)
     {
