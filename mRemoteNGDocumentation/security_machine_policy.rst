@@ -77,3 +77,11 @@ cryptographic requirements are validated for their provider. All newly generated
 connection and portable settings files use atomic replacement, and write errors
 are propagated. Unmanaged users keep legacy settings behavior until they opt into
 protected settings migration.
+
+Export policy
+-------------
+
+``AllowPasswordExport=0`` caps the export filter in addition to existing credential
+restrictions. ``AllowPlaintextExport=0`` or ``RequireFullEncryption=1`` blocks CSV
+serialization, including direct serializer calls. XML export uses the selected
+root's key and honors full encryption; denied operations do not write output.

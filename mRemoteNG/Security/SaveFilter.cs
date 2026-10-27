@@ -39,7 +39,8 @@ namespace mRemoteNG.Security
         public SaveFilter RestrictForExport()
         {
             return new SaveFilter(true,
-                _allowPasswords && CommonRegistrySettings.AllowExportPasswords,
+                _allowPasswords && CommonRegistrySettings.AllowExportPasswords
+                    && Policy.MachineSecurityPolicy.Current.AllowPasswordExport,
                 _allowUsernames && CommonRegistrySettings.AllowExportUsernames)
             {
                 SavePassword = SavePassword,

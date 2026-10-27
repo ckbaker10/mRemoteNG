@@ -86,7 +86,7 @@ namespace mRemoteNG.App
                 {
                     case SaveFormat.mRXML:
                         ICryptographyProvider cryptographyProvider = new CryptoProviderFactoryFromSettings().Build();
-                        RootNodeInfo? rootNode = exportTarget.GetRootParent() as RootNodeInfo;
+                        RootNodeInfo? rootNode = exportTarget as RootNodeInfo ?? exportTarget.GetRootParent() as RootNodeInfo;
                         XmlConnectionNodeSerializer29 connectionNodeSerializer = new(
                                                                                          cryptographyProvider,
                                                                                          rootNode?.PasswordString
@@ -96,7 +96,11 @@ namespace mRemoteNG.App
                                                                                              .PasswordString
                                                                                              .ConvertToSecureString(),
                                                                                          saveFilter);
-                        serializer = new XmlConnectionsSerializer(cryptographyProvider, connectionNodeSerializer);
+                        serializer = new XmlConnectionsSerializer(cryptographyProvider, connectionNodeSerializer)
+                        {
+                            UseFullEncryption = Properties.OptionsSecurityPage.Default.EncryptCompleteConnectionsFile
+                                || mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.RequireFullEncryption
+                        };
                         break;
                     case SaveFormat.mRCSV:
                         serializer =
