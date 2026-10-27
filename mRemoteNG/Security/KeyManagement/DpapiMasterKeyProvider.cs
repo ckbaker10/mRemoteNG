@@ -5,6 +5,7 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using mRemoteNG.Security.Policy;
 
 namespace mRemoteNG.Security.KeyManagement
 {
@@ -17,23 +18,27 @@ namespace mRemoteNG.Security.KeyManagement
     public class DpapiMasterKeyProvider : IMasterKeyProvider
     {
         private readonly string _protectedFilePath;
+        private readonly SecurityPolicy _policy;
 
         public string ProviderId => "dpapi";
         public string DisplayName => "Windows User Account (DPAPI)";
-        public bool IsAvailable => OperatingSystem.IsWindows();
+        public bool IsAvailable => OperatingSystem.IsWindows() && _policy.AllowPersistentUnlock;
         public bool CanPersistWrappedKey => true;
 
         /// <param name="protectedFilePath">
         /// Path to the DPAPI-protected file that stores the master key.
         /// Defaults to <c>{SettingsPath}\mremoteng.dpapi.bin</c>.
         /// </param>
-        public DpapiMasterKeyProvider(string protectedFilePath)
+        public DpapiMasterKeyProvider(string protectedFilePath, SecurityPolicy policy = null)
         {
             _protectedFilePath = protectedFilePath ?? throw new ArgumentNullException(nameof(protectedFilePath));
+            _policy = policy ?? MachineSecurityPolicy.Current;
         }
 
         public Task<SecureString> GetKeyAsync()
         {
+            if (!_policy.AllowPersistentUnlock)
+                return Task.FromResult<SecureString>(null);
             if (!File.Exists(_protectedFilePath))
                 return Task.FromResult<SecureString>(null);
 
@@ -62,6 +67,8 @@ namespace mRemoteNG.Security.KeyManagement
         /// </summary>
         public void StoreKey(SecureString key)
         {
+            if (!_policy.AllowPersistentUnlock)
+                throw new InvalidOperationException("Machine policy prohibits persistent unlock keys.");
             if (key is null) throw new ArgumentNullException(nameof(key));
 
             string plain = key.ConvertToUnsecureString();

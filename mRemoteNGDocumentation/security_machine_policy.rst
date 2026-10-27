@@ -23,3 +23,11 @@ The typed contract additionally reserves ``RequireMasterPassword``,
 and ``AllowPlaintextExport`` for their separate enforcement changes. These flags
 alone are not an enforcement claim until the corresponding consumers are installed.
 No password or unlock key belongs in the registry.
+
+With ``AllowPersistentUnlock=0``, DPAPI providers cannot read or write cached
+master passwords, including direct provider calls. The settings initializer
+skips providers capable of persistent unlock and uses the password provider.
+Existing cached files are left untouched and must be handled explicitly during
+migration. The legacy noninteractive options repository refuses to open under
+this policy until an interactive store is supplied; it never opens a plaintext
+replacement database as a fallback.
