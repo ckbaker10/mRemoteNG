@@ -10,6 +10,8 @@ consumers rather than silently falling back to user settings.
 Boolean values use REG_DWORD 0 or 1. Integer values use REG_DWORD. String choices
 use REG_SZ and are case sensitive. Policy values take precedence over the legacy
 ``SOFTWARE\mRemoteNG\Security\Options`` defaults.
+Registry value names are case insensitive. Registry kinds are checked strictly;
+REG_EXPAND_SZ and REG_QWORD are not accepted as substitutes for REG_SZ and REG_DWORD.
 
 The encryption settings consumer supports ``RequireFullEncryption`` (boolean),
 ``EncryptionEngine`` (AES, Serpent, Twofish), ``BlockCipherMode`` (GCM, EAX, CCM)
