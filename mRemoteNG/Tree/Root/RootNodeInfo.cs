@@ -66,6 +66,27 @@ namespace mRemoteNG.Tree.Root
 
         [Browsable(false)] public string DefaultPassword { get; } = mRemoteNG.Security.Policy.MasterPasswordValidator.LegacyDefaultPassword;
 
+        /// <summary>Commits a password change only when the supplied atomic save succeeds.</summary>
+        public void ChangePasswordAndSave(string password, Action save)
+        {
+            ArgumentNullException.ThrowIfNull(save);
+            string previousPassword = _customPassword;
+            bool previousProtection = _password;
+            try
+            {
+                PasswordString = password;
+                save();
+            }
+            catch
+            {
+                // Restore the exact prior state, including an unprotected legacy
+                // root. Revalidating it could mask the original write failure.
+                _customPassword = previousPassword;
+                _password = previousProtection;
+                throw;
+            }
+        }
+
         [Browsable(false)] public RootNodeType Type { get; set; } = rootType;
 
         public override TreeNodeType GetTreeNodeType()
