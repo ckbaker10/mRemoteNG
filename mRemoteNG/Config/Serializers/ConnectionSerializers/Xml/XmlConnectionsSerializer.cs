@@ -48,6 +48,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
             catch (Exception ex)
             {
                 Runtime.MessageCollector.AddExceptionStackTrace("SaveToXml failed", ex);
+                throw;
             }
 
             return xml;

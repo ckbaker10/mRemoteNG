@@ -37,6 +37,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Sql
 
         public DataTable Serialize(ConnectionTreeModel connectionTreeModel)
         {
+            ValidatePolicy();
             try
             {
                 _dataTable = BuildTable();
@@ -55,6 +56,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Sql
 
         public DataTable Serialize(ConnectionInfo serializationTarget)
         {
+            ValidatePolicy();
             _dataTable = BuildTable();
 
             _currentNodeIndex = 0;
@@ -70,6 +72,13 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Sql
             }
 
             return _dataTable;
+        }
+
+        private void ValidatePolicy()
+        {
+            mRemoteNG.Security.Policy.EncryptionPolicy.ValidateLegacySql();
+            mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(_encryptionKey.ConvertToUnsecureString(),
+                mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
         }
 
         private DataTable BuildTable()

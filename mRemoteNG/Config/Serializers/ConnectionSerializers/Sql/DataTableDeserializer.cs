@@ -31,6 +31,9 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Sql
 
         public ConnectionTreeModel Deserialize(DataTable table)
         {
+            mRemoteNG.Security.Policy.EncryptionPolicy.ValidateLegacySql();
+            mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(_decryptionKey.ConvertToUnsecureString(),
+                mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
             List<ConnectionInfo> connectionList = CreateNodesFromTable(table);
             ConnectionTreeModel connectionTreeModel = CreateNodeHierarchy(connectionList, table);
             Runtime.ConnectionsService.IsConnectionsFileLoaded = true;

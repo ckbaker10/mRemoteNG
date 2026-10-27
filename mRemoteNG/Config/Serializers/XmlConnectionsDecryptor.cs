@@ -93,6 +93,8 @@ namespace mRemoteNG.Config.Serializers
             {
             }
 
+            if (connectionsFileIsNotEncrypted && mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.HasPasswordRequirements)
+                throw new InvalidOperationException("Machine policy rejects files without a personal master password. Migrate the file before enabling policy.");
             return connectionsFileIsNotEncrypted || Authenticate(protectedString, _rootNodeInfo.PasswordString.ConvertToSecureString());
         }
 

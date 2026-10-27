@@ -31,6 +31,7 @@ namespace mRemoteNG.Config.Connections
 
         public ConnectionTreeModel Load()
         {
+            mRemoteNG.Security.Policy.EncryptionPolicy.ValidateLegacySql();
             IDatabaseConnector connector = DatabaseConnectorFactory.DatabaseConnectorFromSettings();
             SqlDataProvider dataProvider = new(connector);
             SqlDatabaseMetaDataRetriever metaDataRetriever = new();

@@ -14,6 +14,7 @@ namespace mRemoteNG.Tree.Root
     {
         private string _name = Language.Connections;
         private string _customPassword = "";
+        private bool _password;
 
         public RootNodeInfo(RootNodeType rootType)
             : this(rootType, Guid.NewGuid().ToString())
@@ -38,7 +39,17 @@ namespace mRemoteNG.Tree.Root
          LocalizedAttributes.LocalizedDisplayName(nameof(Language.PasswordProtect)),
          LocalizedAttributes.LocalizedDescription(nameof(Language.PropertyDescriptionPasswordProtect)),
          TypeConverter(typeof(MiscTools.YesNoTypeConverter))]
-        public new bool Password { get; set; }
+        public new bool Password
+        {
+            get => _password;
+            set
+            {
+                if (!value && !string.IsNullOrEmpty(_customPassword)
+                    && mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.HasPasswordRequirements)
+                    throw new InvalidOperationException("Machine policy requires master password protection.");
+                _password = value;
+            }
+        }
 
         [Browsable(false)]
         public string PasswordString
@@ -46,12 +57,14 @@ namespace mRemoteNG.Tree.Root
             get => (Password && !string.IsNullOrEmpty(_customPassword)) ? _customPassword : DefaultPassword;
             set
             {
+                mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(value,
+                    mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
                 _customPassword = value;
                 Password = !string.IsNullOrEmpty(value) && _customPassword != DefaultPassword;
             }
         }
 
-        [Browsable(false)] public string DefaultPassword { get; } = "mR3m"; //TODO move password away from code to settings
+        [Browsable(false)] public string DefaultPassword { get; } = mRemoteNG.Security.Policy.MasterPasswordValidator.LegacyDefaultPassword;
 
         [Browsable(false)] public RootNodeType Type { get; set; } = rootType;
 

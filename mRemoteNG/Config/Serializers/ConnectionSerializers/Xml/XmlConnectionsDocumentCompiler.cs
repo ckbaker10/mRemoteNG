@@ -27,6 +27,10 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
         public XDocument CompileDocument(ConnectionInfo serializationTarget, bool fullFileEncryption)
         {
             RootNodeInfo rootNodeInfo = GetRootNodeFromConnectionInfo(serializationTarget);
+            mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(rootNodeInfo.PasswordString,
+                mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
+            fullFileEncryption |= mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.RequireFullEncryption;
+            mRemoteNG.Security.Policy.EncryptionPolicy.Validate(_cryptographyProvider);
             _encryptionKey = rootNodeInfo.PasswordString.ConvertToSecureString();
             XElement rootElement = CompileRootNode(rootNodeInfo, fullFileEncryption);
 

@@ -56,6 +56,13 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
                 ValidateConnectionFileVersion();
 
                 XmlElement rootXmlElement = _xmlDocument.DocumentElement;
+                var policy = mRemoteNG.Security.Policy.MachineSecurityPolicy.Current;
+                if (policy.RequireFullEncryption && (_confVersion < 2.6 || !rootXmlElement.GetAttributeAsBool("FullFileEncryption")))
+                    throw new InvalidOperationException("Machine policy requires full connection-file encryption. Migrate the file before enabling policy.");
+                if (policy.EncryptionEngine != null && rootXmlElement.GetAttribute("EncryptionEngine") != policy.EncryptionEngine
+                    || policy.BlockCipherMode != null && rootXmlElement.GetAttribute("BlockCipherMode") != policy.BlockCipherMode
+                    || policy.MinimumKdfIterations > 0 && rootXmlElement.GetAttributeAsInt("KdfIterations") < policy.MinimumKdfIterations)
+                    throw new InvalidOperationException("Connection-file encryption parameters do not meet machine policy.");
                 InitializeRootNode(rootXmlElement);
                 CreateDecryptor(_rootNodeInfo, rootXmlElement);
                 ConnectionTreeModel connectionTreeModel = new();
@@ -81,6 +88,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
                     }
                 }
 
+                mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(_rootNodeInfo.PasswordString, policy);
                 AddNodesFromXmlRecursive(_xmlDocument.DocumentElement, _rootNodeInfo);
 
                 if (!import)

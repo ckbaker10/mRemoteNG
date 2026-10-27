@@ -33,6 +33,9 @@ namespace mRemoteNG.Config.Connections
         public void Save(ConnectionTreeModel connectionTreeModel, string propertyNameTrigger = "")
         {
             RootNodeInfo rootTreeNode = connectionTreeModel.RootNodes.OfType<RootNodeInfo>().First();
+            var policy = mRemoteNG.Security.Policy.MachineSecurityPolicy.Current;
+            mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(rootTreeNode.PasswordString, policy);
+            mRemoteNG.Security.Policy.EncryptionPolicy.ValidateLegacySql();
 
             UpdateLocalConnectionProperties(rootTreeNode);
 

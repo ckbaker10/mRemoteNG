@@ -24,6 +24,9 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
 
         public XElement Serialize(ConnectionInfo connectionInfo)
         {
+            mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(_encryptionKey.ConvertToUnsecureString(),
+                mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
+            mRemoteNG.Security.Policy.EncryptionPolicy.Validate(_cryptographyProvider);
             XElement element = new(XName.Get("Node", ""));
             SetElementAttributes(element, connectionInfo);
             SetInheritanceAttributes(element, connectionInfo);

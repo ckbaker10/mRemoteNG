@@ -141,7 +141,13 @@ namespace mRemoteNG.UI.Forms
             if (txtPassword.Text.Length >= 3)
             {
                 if (txtPassword.Text == txtVerify.Text)
-                    return true;
+                {
+                    string error = mRemoteNG.Security.Policy.MasterPasswordValidator.GetError(txtPassword.Text,
+                        mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
+                    if (error == null) return true;
+                    ShowStatus(error);
+                    return false;
+                }
                 ShowStatus(Language.PasswordStatusMustMatch);
                 return false;
             }
