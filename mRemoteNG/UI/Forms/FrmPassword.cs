@@ -14,6 +14,7 @@ namespace mRemoteNG.UI.Forms
     {
         private readonly string _passwordName;
         private SecureString _password = new();
+        private readonly bool _useTheme;
 
         /// <summary>
         /// Puts the dialog into the New Password mode. An extra
@@ -31,11 +32,12 @@ namespace mRemoteNG.UI.Forms
         /// password box is shown which must match the first password
         /// to continue.
         /// </param>
-        public FrmPassword(string? passwordName = null, bool newPasswordMode = true)
+        public FrmPassword(string? passwordName = null, bool newPasswordMode = true, bool useTheme = true)
         {
             InitializeComponent();
             _passwordName = passwordName;
             NewPasswordMode = newPasswordMode;
+            _useTheme = useTheme;
         }
 
         /// <summary>
@@ -60,7 +62,7 @@ namespace mRemoteNG.UI.Forms
         private void FrmPassword_Load(object sender, EventArgs e)
         {
             ApplyLanguage();
-            ApplyTheme();
+            if (_useTheme) ApplyTheme();
             DisplayProperties display = new();
             pbLock.Image = display.ScaleImage(pbLock.Image);
             Height = tableLayoutPanel1.Height;
@@ -121,7 +123,7 @@ namespace mRemoteNG.UI.Forms
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            ThemeManager.getInstance().ApplyThemeToTitleBar(this);
+            if (_useTheme) ThemeManager.getInstance().ApplyThemeToTitleBar(this);
         }
 
         private void ApplyTheme()

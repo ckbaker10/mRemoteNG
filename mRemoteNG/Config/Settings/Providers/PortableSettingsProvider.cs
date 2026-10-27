@@ -45,6 +45,7 @@ namespace mRemoteNG.Config.Settings.Providers
         private const string _globalSettingsNodeName = "globalSettings";
         private const string _className = "PortableSettingsProvider";
         private XmlDocument _xmlDocument;
+        private static readonly object FileGate = new();
 
         private string _filePath =>
             Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? throw new InvalidOperationException(),
@@ -67,6 +68,10 @@ namespace mRemoteNG.Config.Settings.Providers
                 }
                 catch (Exception /*ex*/)
                 {
+                    if (System.IO.File.Exists(_filePath)
+                        && (mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.HasPasswordRequirements
+                            || mRemoteNG.Security.Policy.SettingsSecretSession.IsUnlocked))
+                        throw new InvalidOperationException("Existing portable settings cannot be read safely.");
                     // This causes hundreds of unit tests to fail for some reason...
                     //Runtime.MessageCollector.AddExceptionStackTrace("PortableSettingsProvider: Error getting XML", ex);
                 }
@@ -74,6 +79,9 @@ namespace mRemoteNG.Config.Settings.Providers
                 if (_xmlDocument?.SelectSingleNode(_rootNodeName) != null)
                     return _xmlDocument;
 
+                if (_xmlDocument != null && (mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.HasPasswordRequirements
+                    || mRemoteNG.Security.Policy.SettingsSecretSession.IsUnlocked))
+                    throw new InvalidOperationException("Existing portable settings have an invalid root element.");
                 _xmlDocument = GetBlankXmlDocument();
 
                 return _xmlDocument;
@@ -95,21 +103,13 @@ namespace mRemoteNG.Config.Settings.Providers
 
         public override void SetPropertyValues(SettingsContext context, SettingsPropertyValueCollection collection)
         {
-            foreach (SettingsPropertyValue propertyValue in collection)
-                SetValue(propertyValue);
-
-            try
+            lock (FileGate)
             {
-                _rootDocument.Save(_filePath);
-            }
-            catch (Exception)
-            {
-                /* 
-                 * If this is a portable application and the device has been 
-                 * removed then this will fail, so don't do anything. It's 
-                 * probably better for the application to stop saving settings 
-                 * rather than just crashing outright. Probably.
-                 */
+                // Other settings groups may have saved through another provider instance.
+                _xmlDocument = null;
+                foreach (SettingsPropertyValue propertyValue in collection)
+                    SetValue(propertyValue);
+                mRemoteNG.Config.DataProviders.AtomicFile.WriteAllText(_filePath, _rootDocument.OuterXml);
             }
         }
 

@@ -25,6 +25,7 @@ namespace mRemoteNG.Config.UserProfiles
             if (string.IsNullOrWhiteSpace(databasePath))
                 throw new ArgumentException("A profile database path is required.", nameof(databasePath));
             _cryptographyProvider = cryptographyProvider ?? throw new ArgumentNullException(nameof(cryptographyProvider));
+            mRemoteNG.Security.Policy.EncryptionPolicy.Validate(_cryptographyProvider);
             if (encryptionKey is null || encryptionKey.Length == 0)
                 throw new ArgumentException("An encryption key is required.", nameof(encryptionKey));
             if (accessLevel < ProfileAccessLevel.ReadOnly)

@@ -47,3 +47,33 @@ Existing cached files are left untouched and must be handled explicitly during
 migration. The legacy noninteractive options repository refuses to open under
 this policy until an interactive store is supplied; it never opens a plaintext
 replacement database as a fallback.
+
+Sensitive settings storage
+--------------------------
+
+Managed mode protects persisted default connection, gateway, VNC proxy, SQL,
+update proxy and administrator setting strings with versioned authenticated
+envelopes. The existing cryptography provider is used with independent random
+salts; each envelope is bound to its settings group and property name. The new
+format represents master-key text as full UTF-8 bytes before key derivation.
+The settings master password is kept only in a process-lifetime unlock session.
+A persisted encrypted verifier checks input but cannot automatically unlock it.
+It is separate from each connection file's password; changing a connection
+password does not silently rotate or invalidate the settings key.
+
+Run ``mRemoteNG.exe --migrate-settings`` explicitly to migrate legacy settings or
+raise encryption parameters. This prompts for the settings master password,
+rewrites the supported settings groups and exits without opening the normal UI.
+A failed migration can be repeated with the same settings key; legacy backups
+are neither deleted nor declared protected by this operation. Existing weak
+connection files must be migrated separately before policy activation. Settings
+master-password rotation is not performed by this migration command.
+
+Normal managed startup refuses legacy sensitive setting values. Unsupported
+experimental SQLite options storage is rejected under managed secret-storage
+policy rather than pretending its ordinary SQLite backend provides encryption.
+SQLite connection-profile payloads already use field-level encryption; configured
+cryptographic requirements are validated for their provider. All newly generated
+connection and portable settings files use atomic replacement, and write errors
+are propagated. Unmanaged users keep legacy settings behavior until they opt into
+protected settings migration.

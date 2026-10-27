@@ -27,6 +27,8 @@ namespace mRemoteNG.Config.Settings
         /// <param name="settingsPath">The path where settings are stored.</param>
         public void Initialize(string settingsPath)
         {
+            if (mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.HasPasswordRequirements)
+                throw new InvalidOperationException("The experimental SQLite options repository is not supported under managed secret-storage policy.");
             if (string.IsNullOrEmpty(settingsPath))
                 throw new ArgumentNullException(nameof(settingsPath));
 

@@ -44,6 +44,22 @@ namespace mRemoteNG.App
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
+            try
+            {
+                if (!Security.Policy.SettingsSecretSession.Initialize(args)) return;
+                if (Security.Policy.SettingsSecretSession.MigrationRequested)
+                {
+                    Security.Policy.SettingsSecretSession.Migrate();
+                    MessageBox.Show("Sensitive settings migrated. Existing backups remain sensitive and require separate handling.", "mRemoteNG");
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Protected settings could not be unlocked or migrated. Verify the master password and machine policy; no unprotected fallback is used.",
+                    "mRemoteNG", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             InitializeSqliteProvider();
 
             // Ensure the real entry point is definitely STA
