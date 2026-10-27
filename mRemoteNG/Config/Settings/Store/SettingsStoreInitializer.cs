@@ -6,6 +6,7 @@ using System.Runtime.Versioning;
 using System.Security;
 using System.Threading.Tasks;
 using mRemoteNG.Security.KeyManagement;
+using mRemoteNG.Security.Policy;
 
 namespace mRemoteNG.Config.Settings.Store
 {
@@ -25,15 +26,18 @@ namespace mRemoteNG.Config.Settings.Store
         private readonly string _keystorePath;
         private readonly string _dpapiFilePath;
         private readonly IReadOnlyList<IMasterKeyProvider> _keyProviders;
+        private readonly SecurityPolicy _policy;
 
         /// <param name="settingsPath">Directory where settings files are stored.</param>
         /// <param name="keyProviders">Ordered list of key providers to try (e.g. DPAPI first, then password prompt).</param>
-        public SettingsStoreInitializer(string settingsPath, IReadOnlyList<IMasterKeyProvider> keyProviders)
+        public SettingsStoreInitializer(string settingsPath, IReadOnlyList<IMasterKeyProvider> keyProviders,
+            SecurityPolicy policy = null)
         {
             if (string.IsNullOrEmpty(settingsPath))
                 throw new ArgumentNullException(nameof(settingsPath));
 
             _keyProviders = keyProviders ?? throw new ArgumentNullException(nameof(keyProviders));
+            _policy = policy ?? MachineSecurityPolicy.Current;
 
             _settingsDbPath = Path.Combine(settingsPath, SettingsDatabaseFileName);
             _keystorePath = Path.Combine(settingsPath, "mremoteng.keystore.json");
@@ -71,7 +75,7 @@ namespace mRemoteNG.Config.Settings.Store
             if (passwordProvider is null)
                 return null;
 
-            SecureString masterPassword = await passwordProvider.GetKeyAsync();
+            using SecureString masterPassword = await passwordProvider.GetKeyAsync();
             if (masterPassword is null || masterPassword.Length == 0)
                 return null;
 
@@ -85,7 +89,7 @@ namespace mRemoteNG.Config.Settings.Store
 
             // Optionally store with DPAPI for "remember me"
             DpapiMasterKeyProvider dpapiProvider = _keyProviders.OfType<DpapiMasterKeyProvider>().FirstOrDefault();
-            if (dpapiProvider is not null)
+            if (dpapiProvider is not null && _policy.AllowPersistentUnlock)
             {
                 dpapiProvider.StoreKey(masterPassword);
                 keystoreManager.AddWrappedKey(dekHex, masterPassword, dpapiProvider.ProviderId);
@@ -105,9 +109,10 @@ namespace mRemoteNG.Config.Settings.Store
         private async Task<SqliteSettingsStore> UnlockExistingAsync(KeystoreManager keystoreManager)
         {
             // Try each provider in order (DPAPI first for seamless unlock, then password prompt)
-            foreach (IMasterKeyProvider provider in _keyProviders.Where(p => p.IsAvailable))
+            foreach (IMasterKeyProvider provider in _keyProviders.Where(p => p.IsAvailable
+                         && (_policy.AllowPersistentUnlock || !p.CanPersistWrappedKey)))
             {
-                SecureString masterKey = await provider.GetKeyAsync();
+                using SecureString masterKey = await provider.GetKeyAsync();
                 if (masterKey is null || masterKey.Length == 0)
                     continue;
 

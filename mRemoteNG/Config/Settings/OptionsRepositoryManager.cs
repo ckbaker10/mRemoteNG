@@ -82,6 +82,8 @@ namespace mRemoteNG.Config.Settings
 
         private static string TryGetDekHex(string settingsPath)
         {
+            if (!mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.AllowPersistentUnlock)
+                throw new InvalidOperationException("This settings store requires interactive unlock under machine policy.");
             try
             {
                 string keystorePath = Path.Combine(settingsPath, "mremoteng.keystore.json");
