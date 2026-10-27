@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Versioning;
 using System.Reflection;
+using System.Threading;
 using Microsoft.Win32;
 
 namespace mRemoteNG.Security.Policy;
@@ -12,7 +13,17 @@ public static class MachineSecurityPolicy
 {
     public const string RegistryPath = @"SOFTWARE\Policies\mRemoteNG\Security";
     private static readonly Lazy<SecurityPolicy> Snapshot = new(Read);
-    public static SecurityPolicy Current => Snapshot.Value;
+    private static SecurityPolicy _testPolicy;
+
+    public static SecurityPolicy Current => Volatile.Read(ref _testPolicy) ?? Snapshot.Value;
+
+    /// <summary>Replaces the machine policy for tests until the returned scope is disposed.</summary>
+    internal static IDisposable OverrideForTesting(SecurityPolicy policy)
+    {
+        ArgumentNullException.ThrowIfNull(policy);
+        SecurityPolicy previous = Interlocked.Exchange(ref _testPolicy, policy);
+        return new TestPolicyScope(previous);
+    }
 
     private static SecurityPolicy Read()
     {
@@ -46,5 +57,16 @@ public static class MachineSecurityPolicy
                 values[property.Name] = key.GetValue(name, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
             }
         return new SecurityPolicy(values);
+    }
+
+    private sealed class TestPolicyScope(SecurityPolicy previous) : IDisposable
+    {
+        private int _disposed;
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+                Volatile.Write(ref _testPolicy, previous);
+        }
     }
 }
