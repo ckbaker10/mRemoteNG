@@ -1,38 +1,39 @@
-using System;
+﻿using System;
 using System.Security;
 
-namespace mRemoteNG.Security.KeyManagement;
-
-/// <summary>Owns a process-lifetime copy of an interactive key, with no persistence or default key.</summary>
-public sealed class UnlockSession : IDisposable
+namespace mRemoteNG.Security.KeyManagement
 {
-    private readonly object _gate = new();
-    private SecureString _key;
-
-    public UnlockSession(SecureString key)
+    /// <summary>Owns a process-lifetime copy of an interactive key, with no persistence or default key.</summary>
+    public sealed class UnlockSession : IDisposable
     {
-        ArgumentNullException.ThrowIfNull(key);
-        if (key.Length == 0) throw new ArgumentException("An unlock key is required.", nameof(key));
-        _key = key.Copy();
-        _key.MakeReadOnly();
-    }
+        private readonly object _gate = new();
+        private SecureString _key;
 
-    /// <summary>The caller owns and must dispose the returned copy.</summary>
-    public SecureString CopyKey()
-    {
-        lock (_gate)
+        public UnlockSession(SecureString key)
         {
-            ObjectDisposedException.ThrowIf(_key == null, this);
-            return _key.Copy();
+            ArgumentNullException.ThrowIfNull(key);
+            if (key.Length == 0) throw new ArgumentException("An unlock key is required.", nameof(key));
+            _key = key.Copy();
+            _key.MakeReadOnly();
         }
-    }
 
-    public void Dispose()
-    {
-        lock (_gate)
+        /// <summary>The caller owns and must dispose the returned copy.</summary>
+        public SecureString CopyKey()
         {
-            _key?.Dispose();
-            _key = null;
+            lock (_gate)
+            {
+                ObjectDisposedException.ThrowIf(_key == null, this);
+                return _key.Copy();
+            }
+        }
+
+        public void Dispose()
+        {
+            lock (_gate)
+            {
+                _key?.Dispose();
+                _key = null;
+            }
         }
     }
 }
