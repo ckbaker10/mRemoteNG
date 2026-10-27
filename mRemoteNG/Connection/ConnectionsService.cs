@@ -23,6 +23,7 @@ using mRemoteNG.Properties;
 using mRemoteNG.Config.UserProfiles;
 using mRemoteNG.Config.Serializers.ConnectionSerializers.Xml;
 using mRemoteNG.Security.Factories;
+using mRemoteNG.Security.Policy;
 
 namespace mRemoteNG.Connection
 {
@@ -52,10 +53,18 @@ namespace mRemoteNG.Connection
             try
             {
                 filename.ThrowIfNullOrEmpty(nameof(filename));
+                string password = NewConnectionPassword.Request(MachineSecurityPolicy.Current,
+                    () => MiscTools.PasswordDialog("Connection file master password", true));
                 ConnectionTreeModel newConnectionsModel = new();
-                newConnectionsModel.AddRootNode(new RootNodeInfo(RootNodeType.Connection));
+                var root = new RootNodeInfo(RootNodeType.Connection);
+                if (password != null) root.PasswordString = password;
+                newConnectionsModel.AddRootNode(root);
                 SaveConnections(newConnectionsModel, false, new SaveFilter(), filename, true);
                 LoadConnections(false, false, filename);
+            }
+            catch (OperationCanceledException)
+            {
+                // The password prompt was cancelled; leave existing files and model untouched.
             }
             catch (Exception ex)
             {
