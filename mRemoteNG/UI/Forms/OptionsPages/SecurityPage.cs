@@ -60,10 +60,13 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         public override void LoadSettings()
         {
+            mRemoteNG.Security.Policy.EncryptionPolicy.Apply();
             chkEncryptCompleteFile.Checked = Properties.OptionsSecurityPage.Default.EncryptCompleteConnectionsFile;
             comboBoxEncryptionEngine.Text = Enum.GetName(typeof(BlockCipherEngines), Properties.OptionsSecurityPage.Default.EncryptionEngine);
             comboBoxBlockCipher.Text =
                 Enum.GetName(typeof(BlockCipherModes), Properties.OptionsSecurityPage.Default.EncryptionBlockCipherMode);
+            numberBoxKdfIterations.Maximum = Math.Max(numberBoxKdfIterations.Maximum,
+                Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations);
             numberBoxKdfIterations.Value = Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations;
         }
 
@@ -73,6 +76,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             Properties.OptionsSecurityPage.Default.EncryptionEngine = (BlockCipherEngines)comboBoxEncryptionEngine.SelectedItem;
             Properties.OptionsSecurityPage.Default.EncryptionBlockCipherMode = (BlockCipherModes)comboBoxBlockCipher.SelectedItem;
             Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations = (int)numberBoxKdfIterations.Value;
+            mRemoteNG.Security.Policy.EncryptionPolicy.Apply();
         }
 
         public override void LoadRegistrySettings()
@@ -104,6 +108,13 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
             if (pageRegSettingsInstance.EncryptionKeyDerivationIterations.IsSet)
                 DisableControl(numberBoxKdfIterations);
+
+            var policy = mRemoteNG.Security.Policy.MachineSecurityPolicy.Current;
+            if (policy.RequireFullEncryption) DisableControl(chkEncryptCompleteFile);
+            if (policy.EncryptionEngine != null) DisableControl(comboBoxEncryptionEngine);
+            if (policy.BlockCipherMode != null) DisableControl(comboBoxBlockCipher);
+            if (policy.MinimumKdfIterations > 0)
+                numberBoxKdfIterations.Minimum = Math.Max(numberBoxKdfIterations.Minimum, policy.MinimumKdfIterations);
 
             // Updates the visibility of the information label indicating whether registry settings are used.
             lblRegistrySettingsUsedInfo.Visible = ShowRegistrySettingsUsedInfo();

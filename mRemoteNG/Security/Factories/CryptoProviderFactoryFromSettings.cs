@@ -6,6 +6,7 @@ namespace mRemoteNG.Security.Factories
     {
         public ICryptographyProvider Build()
         {
+            Policy.EncryptionPolicy.Apply();
             ICryptographyProvider provider =
                 new CryptoProviderFactory(Properties.OptionsSecurityPage.Default.EncryptionEngine, Properties.OptionsSecurityPage.Default.EncryptionBlockCipherMode).Build();
             provider.KeyDerivationIterations = Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations;
