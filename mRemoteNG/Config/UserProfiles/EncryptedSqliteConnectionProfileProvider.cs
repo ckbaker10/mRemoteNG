@@ -5,6 +5,7 @@ using System.Security;
 using System.Security.Cryptography;
 using Microsoft.Data.Sqlite;
 using mRemoteNG.Security;
+using mRemoteNG.Security.Policy;
 
 namespace mRemoteNG.Config.UserProfiles
 {
@@ -28,6 +29,7 @@ namespace mRemoteNG.Config.UserProfiles
             mRemoteNG.Security.Policy.EncryptionPolicy.Validate(_cryptographyProvider);
             if (encryptionKey is null || encryptionKey.Length == 0)
                 throw new ArgumentException("An encryption key is required.", nameof(encryptionKey));
+            SecretStorePolicy.ValidateKey(encryptionKey, MachineSecurityPolicy.Current);
             if (accessLevel < ProfileAccessLevel.ReadOnly)
                 throw new UnauthorizedAccessException("Read access to the connection profile is required.");
 
@@ -68,6 +70,7 @@ namespace mRemoteNG.Config.UserProfiles
                 throw new CryptographicException("The connection profile uses an unsupported encryption algorithm.");
             }
             _cryptographyProvider.KeyDerivationIterations = reader.GetInt32(3);
+            EncryptionPolicy.Validate(_cryptographyProvider);
 
             try
             {
@@ -86,6 +89,7 @@ namespace mRemoteNG.Config.UserProfiles
             if (serializedConnections is null)
                 throw new ArgumentNullException(nameof(serializedConnections));
 
+            EncryptionPolicy.Validate(_cryptographyProvider);
             string encryptedData = _cryptographyProvider.Encrypt(serializedConnections, _encryptionKey);
             using SqliteCommand command = _connection.CreateCommand();
             command.CommandText = """

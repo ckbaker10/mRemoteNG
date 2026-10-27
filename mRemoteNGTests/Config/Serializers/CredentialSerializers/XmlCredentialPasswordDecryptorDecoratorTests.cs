@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security;
 using mRemoteNG.Config.Serializers.CredentialSerializer;
 using mRemoteNG.Security;
+using mRemoteNG.Security.Policy;
 using mRemoteNG.Security.SymmetricEncryption;
 using NUnit.Framework;
 
@@ -46,5 +49,23 @@ public class XmlCredentialPasswordDecryptorDecoratorTests
             $"<Credentials EncryptionEngine=\"{cryptoProvider.CipherEngine}\" BlockCipherMode=\"{cryptoProvider.CipherMode}\" KdfIterations=\"{cryptoProvider.KeyDerivationIterations}\" {authHeader} SchemaVersion=\"1.0\">" +
             $"<Credential Id=\"ce6b0397-d476-4ffe-884b-dbe9347a88a8\" Title=\"New Credential\" Username=\"asdfasdf\" Domain=\"\" Password=\"{encryptedPassword}\" />" +
             "</Credentials>";
+    }
+
+    [Test]
+    public void ManagedStoreRejectsLegacyFallbackBeforeDecrypting()
+    {
+        var policy = new SecurityPolicy(new Dictionary<string, object> { ["RequireMasterPassword"] = 1 });
+        var sut = new XmlCredentialPasswordDecryptorDecorator(new XmlCredentialRecordDeserializer(), policy);
+        Assert.Throws<InvalidOperationException>(() => sut.Deserialize("<Credentials Auth=\"unused\" />", _decryptionKey));
+    }
+
+    [Test]
+    public void ManagedStoreRejectsPersistedKdfDowngrade()
+    {
+        var policy = new SecurityPolicy(new Dictionary<string, object> { ["MinimumKdfIterations"] = 100000 });
+        var sut = new XmlCredentialPasswordDecryptorDecorator(new XmlCredentialRecordDeserializer(), policy);
+        Assert.Throws<InvalidOperationException>(() => sut.Deserialize(
+            "<Credentials EncryptionEngine=\"AES\" BlockCipherMode=\"GCM\" KdfIterations=\"1000\" Auth=\"unused\" />",
+            _decryptionKey));
     }
 }

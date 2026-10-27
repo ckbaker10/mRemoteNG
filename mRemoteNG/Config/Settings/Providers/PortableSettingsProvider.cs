@@ -109,6 +109,8 @@ namespace mRemoteNG.Config.Settings.Providers
                 _xmlDocument = null;
                 foreach (SettingsPropertyValue propertyValue in collection)
                     SetValue(propertyValue);
+                if (_rootDocument.FirstChild is XmlDeclaration declaration)
+                    declaration.Encoding = "utf-8";
                 mRemoteNG.Config.DataProviders.AtomicFile.WriteAllText(_filePath, _rootDocument.OuterXml);
             }
         }

@@ -7,6 +7,8 @@ using mRemoteNG.Config.Serializers;
 using mRemoteNG.Config.Serializers.CredentialSerializer;
 using mRemoteNG.Credential;
 using mRemoteNG.Security;
+using mRemoteNG.Security.Policy;
+using mRemoteNG.Security.SymmetricEncryption;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -81,5 +83,17 @@ public class XmlCredentialPasswordEncryptorDecoratorTests
         cryptoProvider.KeyDerivationIterations.Returns(KdfIterations);
         cryptoProvider.Encrypt(null, null).ReturnsForAnyArgs("encrypted");
         return cryptoProvider;
+    }
+
+    [Test]
+    public void ManagedStoreRejectsDefaultKeyBeforeSerializingCredentials()
+    {
+        var serializer = SetupBaseSerializer();
+        serializer.ClearReceivedCalls();
+        var policy = new SecurityPolicy(new Dictionary<string, object> { ["RequireMasterPassword"] = 1 });
+        var sut = new XmlCredentialPasswordEncryptorDecorator(new AeadCryptographyProvider(), serializer, policy);
+        using var key = "mR3m".ConvertToSecureString();
+        Assert.Throws<InvalidOperationException>(() => sut.Serialize(Array.Empty<ICredentialRecord>(), key));
+        serializer.DidNotReceiveWithAnyArgs().Serialize(default);
     }
 }

@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using mRemoteNG.Credential;
 using mRemoteNG.Security;
 using mRemoteNG.Security.Factories;
+using mRemoteNG.Security.Policy;
 
 namespace mRemoteNG.Config.Serializers.CredentialSerializer
 {
@@ -13,14 +14,16 @@ namespace mRemoteNG.Config.Serializers.CredentialSerializer
     public class XmlCredentialPasswordDecryptorDecorator : ISecureDeserializer<string, IEnumerable<ICredentialRecord>>
     {
         private readonly IDeserializer<string, IEnumerable<ICredentialRecord>> _baseDeserializer;
+        private readonly SecurityPolicy _policy;
 
         public XmlCredentialPasswordDecryptorDecorator(
-            IDeserializer<string, IEnumerable<ICredentialRecord>> baseDeserializer)
+            IDeserializer<string, IEnumerable<ICredentialRecord>> baseDeserializer, SecurityPolicy policy = null)
         {
             if (baseDeserializer == null)
                 throw new ArgumentNullException(nameof(baseDeserializer));
 
             _baseDeserializer = baseDeserializer;
+            _policy = policy ?? MachineSecurityPolicy.Current;
         }
 
         public IEnumerable<ICredentialRecord> Deserialize(string xml, SecureString key)
@@ -32,8 +35,10 @@ namespace mRemoteNG.Config.Serializers.CredentialSerializer
         private string DecryptPasswords(string xml, SecureString key)
         {
             if (string.IsNullOrEmpty(xml)) return xml;
+            SecretStorePolicy.ValidateKey(key, _policy);
             XDocument xdoc = XDocument.Parse(xml);
             ICryptographyProvider cryptoProvider = new CryptoProviderFactoryFromXml(xdoc.Root).Build();
+            SecretStorePolicy.ValidateEncryption(cryptoProvider, _policy);
             DecryptAuthHeader(xdoc.Root, cryptoProvider, key);
             foreach (XElement credentialElement in xdoc.Descendants())
             {
