@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using mRemoteNG.Config;
 using mRemoteNG.Config.Connections;
+using mRemoteNG.Security;
 using mRemoteNG.Tree;
 using mRemoteNG.Tree.Root;
 using NUnit.Framework;
