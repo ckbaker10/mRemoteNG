@@ -24,6 +24,7 @@
       <xs:attribute name="FullFileEncryption" type="xs:boolean" use="required" />
       <xs:attribute name="Protected" type="xs:string" use="required" />
       <xs:attribute name="ConfVersion" type="xs:float" use="required" />
+      <xs:attribute name="KeyProtection" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 
@@ -59,6 +60,7 @@
     <xs:attribute name="UseCredSsp" type="xs:boolean" use="required" />
     <xs:attribute name="RenderingEngine" type="xs:string" use="required" />
     <xs:attribute name="TerminalBackend" type="xs:string" use="required" />
+    <xs:attribute name="Color" type="xs:string" use="optional" />
     <xs:attribute name="RDPAuthenticationLevel" type="xs:string" use="required" />
     <xs:attribute name="RDPMinutesToIdleTimeout" type="xs:int" use="required" />
     <xs:attribute name="RDPAlertIdleTimeout" type="xs:boolean" use="required" />
@@ -81,6 +83,7 @@
     <xs:attribute name="RedirectPrinters" type="xs:boolean" use="required" />
     <xs:attribute name="RedirectClipboard" type="xs:boolean" use="required" />
     <xs:attribute name="RedirectSmartCards" type="xs:boolean" use="required" />
+    <xs:attribute name="RedirectWebAuthn" type="xs:boolean" use="optional" />
     <xs:attribute name="RedirectSound" type="xs:string" use="required" />
     <xs:attribute name="SoundQuality" type="xs:string" use="required" />
     <xs:attribute name="RedirectAudioCapture" type="xs:boolean" use="required" />
@@ -145,6 +148,7 @@
     <xs:attribute name="InheritRedirectPrinters" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritRedirectClipboard" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritRedirectSmartCards" type="xs:boolean" use="optional" />
+    <xs:attribute name="InheritRedirectWebAuthn" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritRedirectSound" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritSoundQuality" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritRedirectAudioCapture" type="xs:boolean" use="optional" />
@@ -153,6 +157,7 @@
     <xs:attribute name="InheritUseConsoleSession" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritRenderingEngine" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritTerminalBackend" type="xs:boolean" use="optional" />
+    <xs:attribute name="InheritColor" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritUsername" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritICAEncryptionStrength" type="xs:boolean" use="optional" />
     <xs:attribute name="InheritRDPAuthenticationLevel" type="xs:boolean" use="optional" />
