@@ -62,21 +62,44 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         {
             mRemoteNG.Security.Policy.EncryptionPolicy.Apply();
             chkEncryptCompleteFile.Checked = Properties.OptionsSecurityPage.Default.EncryptCompleteConnectionsFile;
+            chkUseDpapiProtection.Checked = Properties.OptionsSecurityPage.Default.UseDpapiProtection;
             comboBoxEncryptionEngine.Text = Enum.GetName(typeof(BlockCipherEngines), Properties.OptionsSecurityPage.Default.EncryptionEngine);
             comboBoxBlockCipher.Text =
                 Enum.GetName(typeof(BlockCipherModes), Properties.OptionsSecurityPage.Default.EncryptionBlockCipherMode);
             numberBoxKdfIterations.Maximum = Math.Max(numberBoxKdfIterations.Maximum,
                 Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations);
             numberBoxKdfIterations.Value = Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations;
+            UpdateCipherControlsEnabledState();
         }
 
         public override void SaveSettings()
         {
             Properties.OptionsSecurityPage.Default.EncryptCompleteConnectionsFile = chkEncryptCompleteFile.Checked;
+            Properties.OptionsSecurityPage.Default.UseDpapiProtection = chkUseDpapiProtection.Checked;
             Properties.OptionsSecurityPage.Default.EncryptionEngine = (BlockCipherEngines)comboBoxEncryptionEngine.SelectedItem;
             Properties.OptionsSecurityPage.Default.EncryptionBlockCipherMode = (BlockCipherModes)comboBoxBlockCipher.SelectedItem;
             Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations = (int)numberBoxKdfIterations.Value;
             mRemoteNG.Security.Policy.EncryptionPolicy.Apply();
+        }
+
+        /// <summary>
+        /// The AES/Twofish/Serpent engine, cipher mode and KDF iteration controls configure a
+        /// password-derived key, which DPAPI protection doesn't use — disable them while DPAPI
+        /// protection is checked so the UI doesn't suggest they still apply.
+        /// </summary>
+        private void ChkUseDpapiProtection_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateCipherControlsEnabledState();
+        }
+
+        private void UpdateCipherControlsEnabledState()
+        {
+            if (pageRegSettingsInstance?.EncryptionEngine.IsSet != true)
+                comboBoxEncryptionEngine.Enabled = !chkUseDpapiProtection.Checked;
+            if (pageRegSettingsInstance?.EncryptionBlockCipherMode.IsSet != true)
+                comboBoxBlockCipher.Enabled = !chkUseDpapiProtection.Checked;
+            if (pageRegSettingsInstance?.EncryptionKeyDerivationIterations.IsSet != true)
+                numberBoxKdfIterations.Enabled = !chkUseDpapiProtection.Checked;
         }
 
         public override void LoadRegistrySettings()
@@ -99,6 +122,9 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             //
             if (pageRegSettingsInstance.EncryptCompleteConnectionsFile.IsSet)
                 DisableControl(chkEncryptCompleteFile);
+
+            if (pageRegSettingsInstance.UseDpapiProtection.IsSet)
+                DisableControl(chkUseDpapiProtection);
 
             if (pageRegSettingsInstance.EncryptionEngine.IsSet)
                 DisableControl(comboBoxEncryptionEngine);
@@ -123,6 +149,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         private bool ShowRegistrySettingsUsedInfo()
         {
             return pageRegSettingsInstance.EncryptCompleteConnectionsFile.IsSet
+                || pageRegSettingsInstance.UseDpapiProtection.IsSet
                 || pageRegSettingsInstance.EncryptionEngine.IsSet
                 || pageRegSettingsInstance.EncryptionBlockCipherMode.IsSet
                 || pageRegSettingsInstance.EncryptionKeyDerivationIterations.IsSet;

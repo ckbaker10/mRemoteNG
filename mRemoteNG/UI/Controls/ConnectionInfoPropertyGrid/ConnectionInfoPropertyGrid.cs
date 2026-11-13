@@ -257,6 +257,8 @@ namespace mRemoteNG.UI.Controls.ConnectionInfoPropertyGrid {
                 strHide.Add(nameof(AbstractConnectionRecord.RDGatewayExternalCredentialProvider));
                 strHide.Add(nameof(AbstractConnectionRecord.RDGatewayUserViaAPI));
                 strHide.Add(nameof(AbstractConnectionRecord.RDGatewayAccessToken));
+            } else if (SelectedConnectionInfo.RDGatewayUseConnectionCredentials == RDGatewayUseConnectionCredentials.No) {
+                strHide.Add(nameof(AbstractConnectionRecord.RDGatewayAccessToken));
             } else if (SelectedConnectionInfo.RDGatewayUseConnectionCredentials == RDGatewayUseConnectionCredentials.ExternalCredentialProvider) {
                 strHide.Add(nameof(AbstractConnectionRecord.RDGatewayDomain));
                 strHide.Add(nameof(AbstractConnectionRecord.RDGatewayPassword));
@@ -270,7 +272,8 @@ namespace mRemoteNG.UI.Controls.ConnectionInfoPropertyGrid {
                 strHide.Add(nameof(AbstractConnectionRecord.RDGatewayUserViaAPI));
             }
 
-            if (SelectedConnectionInfo.Resolution != RDPResolutions.Fullscreen) {
+            // SmartSize scales client-side; Fit To Panel and Fullscreen can renegotiate the session resolution.
+            if (SelectedConnectionInfo.Resolution == RDPResolutions.SmartSize) {
                 strHide.Add(nameof(AbstractConnectionRecord.AutomaticResize));
             }
 
@@ -375,6 +378,8 @@ namespace mRemoteNG.UI.Controls.ConnectionInfoPropertyGrid {
         private void UpdateInheritanceNode() {
             if (IsShowingDefaultProperties && IsShowingInheritance)
                 DefaultConnectionInheritance.Instance.SaveTo(Settings.Default, a => "InhDefault" + a);
+            else if (PropertyMode == PropertyMode.Inheritance)
+                SelectedConnectionInfo?.RaiseInheritanceChanged();
         }
 
         private void pGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e) {

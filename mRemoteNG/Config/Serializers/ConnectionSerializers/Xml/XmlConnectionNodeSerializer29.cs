@@ -20,6 +20,8 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
         {
             base.SetElementAttributes(element, connectionInfo);
             element.Add(new XAttribute("TerminalBackend", connectionInfo.TerminalBackend));
+            element.Add(new XAttribute("Color", connectionInfo.Color));
+            element.Add(new XAttribute("RedirectWebAuthn", connectionInfo.RedirectWebAuthn.ToString().ToLowerInvariant()));
         }
 
         protected override void SetInheritanceAttributes(XContainer element, IInheritable connectionInfo)
@@ -28,6 +30,10 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
 
             if (SaveInheritance && connectionInfo.Inheritance.TerminalBackend)
                 element.Add(new XAttribute("InheritTerminalBackend", connectionInfo.Inheritance.TerminalBackend.ToString().ToLowerInvariant()));
+            if (SaveInheritance && connectionInfo.Inheritance.Color)
+                element.Add(new XAttribute("InheritColor", connectionInfo.Inheritance.Color.ToString().ToLowerInvariant()));
+            if (SaveInheritance && connectionInfo.Inheritance.RedirectWebAuthn)
+                element.Add(new XAttribute("InheritRedirectWebAuthn", connectionInfo.Inheritance.RedirectWebAuthn.ToString().ToLowerInvariant()));
         }
     }
 }
