@@ -15,7 +15,8 @@ public sealed class SecurityPolicy
     [
         nameof(RequireMasterPassword), nameof(MinimumMasterPasswordLength), nameof(RequireUppercase),
         nameof(RequireLowercase), nameof(RequireDigit), nameof(RequireSpecialCharacter),
-        nameof(AllowPersistentUnlock), nameof(AllowPlaintextExport), nameof(MinimumKdfIterations)
+        nameof(AllowPersistentUnlock), nameof(AllowPlaintextExport), nameof(MinimumKdfIterations),
+        nameof(EnforceEncryptionOptions)
     ];
 
     public bool RequireMasterPassword { get; }
@@ -27,6 +28,13 @@ public sealed class SecurityPolicy
     public bool AllowPersistentUnlock { get; }
     public bool AllowPlaintextExport { get; }
     public int MinimumKdfIterations { get; }
+
+    /// <summary>
+    /// Makes the administrator values of the Security options binding for existing files too:
+    /// files whose protection differs from them are not opened, and formats that cannot meet
+    /// them are refused. Without it those values only preset and lock the options.
+    /// </summary>
+    public bool EnforceEncryptionOptions { get; }
 
     public bool HasPasswordRequirements => RequireMasterPassword || MinimumMasterPasswordLength > 0
         || RequireUppercase || RequireLowercase || RequireDigit || RequireSpecialCharacter;
@@ -49,6 +57,7 @@ public sealed class SecurityPolicy
         AllowPersistentUnlock = Boolean(values, nameof(AllowPersistentUnlock), true);
         AllowPlaintextExport = Boolean(values, nameof(AllowPlaintextExport), true);
         MinimumKdfIterations = Integer(values, nameof(MinimumKdfIterations), 0, 10000000);
+        EnforceEncryptionOptions = Boolean(values, nameof(EnforceEncryptionOptions), false);
         if (MinimumKdfIterations is > 0 and < 1000)
             throw Invalid(nameof(MinimumKdfIterations));
     }
