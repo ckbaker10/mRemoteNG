@@ -13,11 +13,10 @@ namespace mRemoteNGTests.Security
         {
             var policy = new SecurityPolicy(new Dictionary<string, object>());
             Assert.That(policy.HasPasswordRequirements, Is.False);
-            Assert.That(policy.AllowPasswordExport, Is.True);
             Assert.That(policy.AllowPlaintextExport, Is.True);
             Assert.That(policy.AllowPersistentUnlock, Is.True);
             Assert.That(policy.MinimumKdfIterations, Is.Zero);
-            Assert.That(policy.EncryptionEngine, Is.Null);
+            Assert.That(policy.AllowsDpapiConnectionProtection, Is.True);
         }
 
         [TestCase("RequireMasterPassword", "true")]
@@ -27,8 +26,7 @@ namespace mRemoteNGTests.Security
         [TestCase("MinimumMasterPasswordLength", "16")]
         [TestCase("MinimumKdfIterations", 999)]
         [TestCase("MinimumKdfIterations", 10000001)]
-        [TestCase("EncryptionEngine", "unknown")]
-        [TestCase("BlockCipherMode", "CBC")]
+        [TestCase("AllowPlaintextExport", "0")]
         public void InvalidPolicyFailsClosed(string key, object value)
         {
             Assert.Throws<InvalidOperationException>(() => new SecurityPolicy(new Dictionary<string, object> { [key] = value }));
@@ -45,11 +43,29 @@ namespace mRemoteNGTests.Security
 
         [TestCase("MinimumMasterPasswordLength", 16)]
         [TestCase("RequireUppercase", 1)]
-        [TestCase("RequireFullEncryption", 1)]
+        [TestCase("RequireSpecialCharacter", 1)]
         public void PasswordRelatedRequirementsCannotBeBypassedByOmittingRequireFlag(string key, int value)
         {
             var policy = new SecurityPolicy(new Dictionary<string, object> { [key] = value });
             Assert.That(policy.HasPasswordRequirements, Is.True);
+        }
+
+        [TestCase("RequireMasterPassword", 1)]
+        [TestCase("MinimumMasterPasswordLength", 12)]
+        [TestCase("RequireDigit", 1)]
+        [TestCase("AllowPersistentUnlock", 0)]
+        public void DpapiConnectionProtectionIsExcludedByPasswordAndUnlockPolicy(string key, int value)
+        {
+            var policy = new SecurityPolicy(new Dictionary<string, object> { [key] = value });
+            Assert.That(policy.AllowsDpapiConnectionProtection, Is.False);
+        }
+
+        [TestCase("AllowPlaintextExport", 0)]
+        [TestCase("MinimumKdfIterations", 600000)]
+        public void UnrelatedPolicyKeepsDpapiConnectionProtectionAvailable(string key, int value)
+        {
+            var policy = new SecurityPolicy(new Dictionary<string, object> { [key] = value });
+            Assert.That(policy.AllowsDpapiConnectionProtection, Is.True);
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
-using System.Reflection;
 using System.Threading;
 using Microsoft.Win32;
+using mRemoteNG.App.Info;
 
 namespace mRemoteNG.Security.Policy;
 
@@ -11,7 +11,8 @@ namespace mRemoteNG.Security.Policy;
 [SupportedOSPlatform("windows")]
 public static class MachineSecurityPolicy
 {
-    public const string RegistryPath = @"SOFTWARE\Policies\mRemoteNG\Security";
+    /// <summary>The existing Security area; option values live in its <c>Options</c> subkey.</summary>
+    public const string RegistryPath = WindowsRegistryInfo.Security;
     private static readonly Lazy<SecurityPolicy> Snapshot = new(Read);
     private static SecurityPolicy _testPolicy;
 
@@ -44,19 +45,25 @@ public static class MachineSecurityPolicy
     /// <summary>Parses an already-open policy source; Current always opens the fixed HKLM path.</summary>
     public static SecurityPolicy ReadFrom(RegistryKey key)
     {
-        var values = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        var values = new Dictionary<string, object>(StringComparer.Ordinal);
         if (key != null)
             foreach (string name in key.GetValueNames())
             {
-                var property = typeof(SecurityPolicy).GetProperty(name,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
-                if (property == null || property.Name == nameof(SecurityPolicy.HasPasswordRequirements)) continue;
-                var expected = property.PropertyType == typeof(string) ? RegistryValueKind.String : RegistryValueKind.DWord;
-                if (key.GetValueKind(name) != expected)
-                    throw new InvalidOperationException("Invalid registry type for machine security policy: " + property.Name + ".");
-                values[property.Name] = key.GetValue(name, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+                string policyName = FindPolicyName(name);
+                if (policyName == null) continue;
+                if (key.GetValueKind(name) != RegistryValueKind.DWord)
+                    throw new InvalidOperationException("Invalid registry type for machine security policy: " + policyName + ".");
+                values[policyName] = key.GetValue(name, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
             }
         return new SecurityPolicy(values);
+    }
+
+    private static string FindPolicyName(string valueName)
+    {
+        foreach (string policyName in SecurityPolicy.ValueNames)
+            if (string.Equals(policyName, valueName, StringComparison.OrdinalIgnoreCase))
+                return policyName;
+        return null;
     }
 
     private sealed class TestPolicyScope(SecurityPolicy previous) : IDisposable

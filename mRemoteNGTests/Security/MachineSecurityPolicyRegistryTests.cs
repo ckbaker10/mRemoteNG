@@ -44,10 +44,17 @@ namespace mRemoteNGTests.Security
         }
 
         [Test]
-        public void ExpandStringCannotImpersonateString()
+        public void ValuesOutsideThePolicyAreIgnored()
         {
-            _key.SetValue("EncryptionEngine", "AES", RegistryValueKind.ExpandString);
-            Assert.Throws<InvalidOperationException>(() => MachineSecurityPolicy.ReadFrom(_key));
+            _key.SetValue("EncryptionEngine", "Serpent", RegistryValueKind.String);
+            _key.SetValue("UseDpapiProtection", "1", RegistryValueKind.ExpandString);
+            Assert.That(MachineSecurityPolicy.ReadFrom(_key).HasPasswordRequirements, Is.False);
+        }
+
+        [Test]
+        public void PolicyIsReadFromTheExistingSecurityArea()
+        {
+            Assert.That(MachineSecurityPolicy.RegistryPath, Is.EqualTo(@"SOFTWARE\mRemoteNG\Security"));
         }
 
         [Test]

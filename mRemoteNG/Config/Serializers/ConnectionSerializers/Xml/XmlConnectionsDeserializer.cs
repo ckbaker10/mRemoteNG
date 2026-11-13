@@ -15,6 +15,7 @@ using mRemoteNG.Container;
 using mRemoteNG.Messages;
 using mRemoteNG.Plugins;
 using mRemoteNG.Security;
+using mRemoteNG.Security.Policy;
 using mRemoteNG.Tools;
 using mRemoteNG.Tree;
 using mRemoteNG.Tree.Root;
@@ -146,6 +147,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
 
             if (_isDpapiProtected)
             {
+                ConnectionProtectionPolicy.EnsureDpapiAllowed();
                 _decryptor = new XmlConnectionsDecryptor(new DpapiCryptographyProvider(), rootNodeInfo)
                 {
                     AuthenticationRequestor = AuthenticationRequestor
