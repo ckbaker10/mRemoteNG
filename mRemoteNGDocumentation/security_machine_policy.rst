@@ -15,6 +15,8 @@ substitutes for ``REG_DWORD``. Values not listed here are ignored.
 Cipher engine, block cipher mode, full-file encryption and Windows account
 (DPAPI) protection are set with the existing Security options values in
 ``SOFTWARE\mRemoteNG\Security\Options``; this policy does not duplicate them.
+By default those values only preset and lock the options. ``EnforceEncryptionOptions``
+(boolean) reserves making them binding for existing files and storage formats as well.
 
 ``MinimumKdfIterations`` (0 for no minimum, otherwise 1000 through 10000000)
 raises the key derivation iterations used for new encryption to at least this

@@ -17,6 +17,7 @@ namespace mRemoteNGTests.Security
             Assert.That(policy.AllowPersistentUnlock, Is.True);
             Assert.That(policy.MinimumKdfIterations, Is.Zero);
             Assert.That(policy.AllowsDpapiConnectionProtection, Is.True);
+            Assert.That(policy.EnforceEncryptionOptions, Is.False);
         }
 
         [TestCase("RequireMasterPassword", "true")]
@@ -27,6 +28,7 @@ namespace mRemoteNGTests.Security
         [TestCase("MinimumKdfIterations", 999)]
         [TestCase("MinimumKdfIterations", 10000001)]
         [TestCase("AllowPlaintextExport", "0")]
+        [TestCase("EnforceEncryptionOptions", 2)]
         public void InvalidPolicyFailsClosed(string key, object value)
         {
             Assert.Throws<InvalidOperationException>(() => new SecurityPolicy(new Dictionary<string, object> { [key] = value }));
