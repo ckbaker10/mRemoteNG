@@ -10,11 +10,20 @@ namespace mRemoteNG.Tree.Root
 {
     [SupportedOSPlatform("windows")]
     [DefaultProperty("Name")]
-    public class RootNodeInfo(RootNodeType rootType, string uniqueId) : ContainerInfo(uniqueId)
+    public class RootNodeInfo : ContainerInfo
     {
-        private string _name = Language.Connections;
+        private string _name;
         private string _customPassword = "";
         private bool _password;
+
+        public RootNodeInfo(RootNodeType rootType, string uniqueId)
+            : base(uniqueId)
+        {
+            // Set here, after the base constructor: its defaults name the new container "New Folder"
+            // through the overridden Name, and a field initializer would run before that.
+            _name = Language.Connections;
+            Type = rootType;
+        }
 
         public RootNodeInfo(RootNodeType rootType)
             : this(rootType, Guid.NewGuid().ToString())
@@ -31,7 +40,7 @@ namespace mRemoteNG.Tree.Root
         public override string Name
         {
             get => _name;
-            set => _name = value;
+            set => SetField(ref _name, value, nameof(Name));
         }
         
         [LocalizedAttributes.LocalizedCategory(nameof(Language.Miscellaneous)),
@@ -47,7 +56,7 @@ namespace mRemoteNG.Tree.Root
                 if (!value && !string.IsNullOrEmpty(_customPassword)
                     && mRemoteNG.Security.Policy.MachineSecurityPolicy.Current.HasPasswordRequirements)
                     throw new InvalidOperationException("Machine policy requires master password protection.");
-                _password = value;
+                SetField(ref _password, value, nameof(Password));
             }
         }
 
@@ -59,7 +68,7 @@ namespace mRemoteNG.Tree.Root
             {
                 mRemoteNG.Security.Policy.MasterPasswordValidator.Validate(value,
                     mRemoteNG.Security.Policy.MachineSecurityPolicy.Current);
-                _customPassword = value;
+                SetField(ref _customPassword, value, nameof(PasswordString));
                 Password = !string.IsNullOrEmpty(value) && _customPassword != DefaultPassword;
             }
         }
@@ -81,13 +90,13 @@ namespace mRemoteNG.Tree.Root
             {
                 // Restore the exact prior state, including an unprotected legacy
                 // root. Revalidating it could mask the original write failure.
-                _customPassword = previousPassword;
-                _password = previousProtection;
+                SetField(ref _customPassword, previousPassword, nameof(PasswordString));
+                SetField(ref _password, previousProtection, nameof(Password));
                 throw;
             }
         }
 
-        [Browsable(false)] public RootNodeType Type { get; set; } = rootType;
+        [Browsable(false)] public RootNodeType Type { get; set; }
 
         public override TreeNodeType GetTreeNodeType()
         {

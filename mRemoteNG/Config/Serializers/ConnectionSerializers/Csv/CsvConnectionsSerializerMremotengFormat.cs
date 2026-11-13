@@ -27,7 +27,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
             saveFilter.ThrowIfNull(nameof(saveFilter));
             credentialRepositoryList.ThrowIfNull(nameof(credentialRepositoryList));
 
-            _saveFilter = saveFilter;
+            _saveFilter = saveFilter.RestrictForExport();
             _credentialRepositoryList = credentialRepositoryList;
         }
 
@@ -51,7 +51,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
 
         private void WriteCsvHeader(StringBuilder sb)
         {
-            sb.Append("Name;Id;Parent;NodeType;Description;Icon;Panel;TabColor;ConnectionFrameColor;");
+            sb.Append("Name;Id;Parent;NodeType;Description;Icon;Panel;TabColor;ConnectionFrameColor;Color;");
             if (_saveFilter.SaveUsername)
                 sb.Append("Username;");
             if (_saveFilter.SavePassword)
@@ -61,22 +61,22 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
 
             sb.Append("Hostname;Port;VmId;Protocol;SSHTunnelConnectionName;OpeningCommand;SSHOptions;PuttySession;ConnectToConsole;UseCredSsp;UseRestrictedAdmin;UseRCG;UseRedirectionServerName;UseVmId;UseEnhancedMode;RenderingEngine;TerminalBackend;RDPAuthenticationLevel;" +
                       "LoadBalanceInfo;Colors;Resolution;AutomaticResize;DisplayWallpaper;DisplayThemes;EnableFontSmoothing;EnableDesktopComposition;DisableFullWindowDrag;DisableMenuAnimations;DisableCursorShadow;DisableCursorBlinking;" +
-                      "CacheBitmaps;RedirectDiskDrives;RedirectDiskDrivesCustomRedirectPorts;RedirectPrinters;RedirectClipboard;RedirectSmartCards;RedirectSound;RedirectKeys;" +
+                      "CacheBitmaps;RedirectDiskDrives;RedirectDiskDrivesCustom;RedirectPorts;RedirectPrinters;RedirectClipboard;RedirectSmartCards;RedirectWebAuthn;RedirectSound;RedirectKeys;" +
                       "PreExtApp;PostExtApp;MacAddress;UserField;EnvironmentTags;ExtApp;Favorite;VNCCompression;VNCEncoding;VNCAuthMode;VNCProxyType;VNCProxyIP;" +
                       "VNCProxyPort;VNCProxyUsername;VNCProxyPassword;VNCColors;VNCSmartSizeMode;VNCViewOnly;RDGatewayUsageMethod;RDGatewayHostname;" +
                       "RDGatewayUseConnectionCredentials;RDGatewayUsername;RDGatewayPassword;RDGatewayDomain;RDGatewayExternalCredentialProvider;RDGatewayUserViaAPI;RedirectAudioCapture;RdpVersion;RDPStartProgram;RDPStartProgramWorkDir;UserViaAPI;EC2InstanceId;EC2Region;ExternalCredentialProvider;ExternalAddressProvider;PluginData;");
 
             if (_saveFilter.SaveInheritance)
                 sb.Append("InheritCacheBitmaps;InheritColors;InheritDescription;InheritDisplayThemes;InheritDisplayWallpaper;" +
-                          "InheritEnableFontSmoothing;InheritEnableDesktopComposition;InheritDisableFullWindowDrag;InheritDisableMenuAnimations;InheritDisableCursorShadow;InheritDisableCursorBlinking;InheritDomain;InheritIcon;InheritPanel;InheritTabColor;InheritConnectionFrameColor;InheritPassword;InheritPort;" +
+                          "InheritEnableFontSmoothing;InheritEnableDesktopComposition;InheritDisableFullWindowDrag;InheritDisableMenuAnimations;InheritDisableCursorShadow;InheritDisableCursorBlinking;InheritDomain;InheritIcon;InheritPanel;InheritTabColor;InheritConnectionFrameColor;InheritColor;InheritPassword;InheritPort;" +
                           "InheritProtocol;InheritSSHTunnelConnectionName;InheritOpeningCommand;InheritSSHOptions;InheritPuttySession;InheritRedirectDiskDrives;InheritRedirectDiskDrivesCustom;InheritRedirectKeys;InheritRedirectPorts;InheritRedirectPrinters;" +
-                          "InheritRedirectClipboard;InheritRedirectSmartCards;InheritRedirectSound;InheritResolution;InheritAutomaticResize;" +
+                          "InheritRedirectClipboard;InheritRedirectSmartCards;InheritRedirectWebAuthn;InheritRedirectSound;InheritResolution;InheritAutomaticResize;" +
                           "InheritUseConsoleSession;InheritUseCredSsp;InheritUseRestrictedAdmin;InheritUseRCG;InheritUseRedirectionServerName;InheritUseVmId;InheritUseEnhancedMode;InheritVmId;InheritRenderingEngine;InheritTerminalBackend;InheritUsername;" +
                           "InheritRDPAuthenticationLevel;InheritLoadBalanceInfo;InheritPreExtApp;InheritPostExtApp;InheritMacAddress;InheritUserField;" +
                           "InheritEnvironmentTags;InheritFavorite;InheritExtApp;InheritVNCCompression;InheritVNCEncoding;InheritVNCAuthMode;InheritVNCProxyType;InheritVNCProxyIP;" +
                           "InheritVNCProxyPort;InheritVNCProxyUsername;InheritVNCProxyPassword;InheritVNCColors;InheritVNCSmartSizeMode;InheritVNCViewOnly;" +
                           "InheritRDGatewayUsageMethod;InheritRDGatewayHostname;InheritRDGatewayUseConnectionCredentials;InheritRDGatewayUsername;" +
-                          "InheritRDGatewayPassword;InheritRDGatewayDomain;InheritRDGatewayExternalCredentialProvider;InheritRDGatewayUserViaAPI;InheritRDPAlertIdleTimeout;InheritRDPMinutesToIdleTimeout;InheritSoundQuality;InheritUserViaAPI;" +
+                          "InheritRDGatewayPassword;InheritRDGatewayDomain;InheritRDGatewayAccessToken;InheritRDGatewayExternalCredentialProvider;InheritRDGatewayUserViaAPI;InheritRDPAlertIdleTimeout;InheritRDPMinutesToIdleTimeout;InheritSoundQuality;InheritUserViaAPI;" +
                           "InheritRedirectAudioCapture;InheritRdpVersion;InheritExternalCredentialProvider");
         }
 
@@ -109,14 +109,14 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
               .Append(FormatForCsv(con.Icon))
               .Append(FormatForCsv(con.Panel))
               .Append(FormatForCsv(con.TabColor))
-              .Append(FormatForCsv(con.ConnectionFrameColor));
+              .Append(FormatForCsv(con.ConnectionFrameColor))
+              .Append(FormatForCsv(con.Color));
 
             if (_saveFilter.SaveUsername)
                 sb.Append(FormatForCsv(con.Username));
 
             if (_saveFilter.SavePassword)
-                //sb.Append(con.Password?.ConvertToUnsecureString() + ";");
-                sb.Append(con.Password + ";");
+                sb.Append(FormatForCsv(con.Password ?? string.Empty));
 
             if (_saveFilter.SaveDomain)
                 sb.Append(FormatForCsv(con.Domain));
@@ -158,6 +158,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
               .Append(FormatForCsv(con.RedirectPrinters))
               .Append(FormatForCsv(con.RedirectClipboard))
               .Append(FormatForCsv(con.RedirectSmartCards))
+              .Append(FormatForCsv(con.RedirectWebAuthn))
               .Append(FormatForCsv(con.RedirectSound))
               .Append(FormatForCsv(con.RedirectKeys))
               .Append(FormatForCsv(con.PreExtApp))
@@ -173,16 +174,16 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
               .Append(FormatForCsv(con.VNCProxyType))
               .Append(FormatForCsv(con.VNCProxyIP))
               .Append(FormatForCsv(con.VNCProxyPort))
-              .Append(FormatForCsv(con.VNCProxyUsername))
-              .Append(FormatForCsv(con.VNCProxyPassword))
+              .Append(FormatForCsv(_saveFilter.SaveUsername ? con.VNCProxyUsername : ""))
+              .Append(FormatForCsv(_saveFilter.SavePassword ? con.VNCProxyPassword : ""))
               .Append(FormatForCsv(con.VNCColors))
               .Append(FormatForCsv(con.VNCSmartSizeMode))
               .Append(FormatForCsv(con.VNCViewOnly))
               .Append(FormatForCsv(con.RDGatewayUsageMethod))
               .Append(FormatForCsv(con.RDGatewayHostname))
               .Append(FormatForCsv(con.RDGatewayUseConnectionCredentials))
-              .Append(FormatForCsv(con.RDGatewayUsername))
-              .Append(FormatForCsv(con.RDGatewayPassword))
+              .Append(FormatForCsv(_saveFilter.SaveUsername ? con.RDGatewayUsername : ""))
+              .Append(FormatForCsv(_saveFilter.SavePassword ? con.RDGatewayPassword : ""))
               .Append(FormatForCsv(con.RDGatewayDomain))
               .Append(FormatForCsv(con.RDGatewayExternalCredentialProvider))
               .Append(FormatForCsv(con.RDGatewayUserViaAPI))
@@ -218,6 +219,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
               .Append(FormatForCsv(con.Inheritance.Panel))
               .Append(FormatForCsv(con.Inheritance.TabColor))
               .Append(FormatForCsv(con.Inheritance.ConnectionFrameColor))
+              .Append(FormatForCsv(con.Inheritance.Color))
               .Append(FormatForCsv(con.Inheritance.Password))
               .Append(FormatForCsv(con.Inheritance.Port))
               .Append(FormatForCsv(con.Inheritance.Protocol))
@@ -232,6 +234,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
               .Append(FormatForCsv(con.Inheritance.RedirectPrinters))
               .Append(FormatForCsv(con.Inheritance.RedirectClipboard))
               .Append(FormatForCsv(con.Inheritance.RedirectSmartCards))
+              .Append(FormatForCsv(con.Inheritance.RedirectWebAuthn))
               .Append(FormatForCsv(con.Inheritance.RedirectSound))
               .Append(FormatForCsv(con.Inheritance.Resolution))
               .Append(FormatForCsv(con.Inheritance.AutomaticResize))
@@ -272,6 +275,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
               .Append(FormatForCsv(con.Inheritance.RDGatewayUsername))
               .Append(FormatForCsv(con.Inheritance.RDGatewayPassword))
               .Append(FormatForCsv(con.Inheritance.RDGatewayDomain))
+              .Append(FormatForCsv(con.Inheritance.RDGatewayAccessToken))
               .Append(FormatForCsv(con.Inheritance.RDGatewayExternalCredentialProvider))
               .Append(FormatForCsv(con.Inheritance.RDGatewayUserViaAPI))
               .Append(FormatForCsv(con.Inheritance.RDPAlertIdleTimeout))
@@ -285,8 +289,7 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Csv
 
         private string FormatForCsv(object value)
         {
-            string cleanedString = value.ToString().Replace(";", "");
-            return cleanedString + ";";
+            return SemicolonSeparatedValues.Quote(value.ToString()) + ";";
         }
     }
 }
