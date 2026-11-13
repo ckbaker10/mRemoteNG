@@ -87,7 +87,7 @@ namespace mRemoteNG.Config.Settings.Registry
             ApplyEncryptionEngine();
             ApplyEncryptionBlockCipherMode();
             ApplyEncryptionKeyDerivationIterations();
-            mRemoteNG.Security.Policy.EncryptionPolicy.Apply();
+            mRemoteNG.Security.Policy.ConnectionProtectionPolicy.Apply();
         }
 
         private void ApplyEncryptCompleteConnectionsFile()

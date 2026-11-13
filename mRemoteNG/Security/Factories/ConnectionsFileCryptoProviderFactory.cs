@@ -20,7 +20,10 @@ namespace mRemoteNG.Security.Factories
             // account (DPAPI)") — it bypasses the engine/mode/KDF settings entirely, since it needs
             // none of them. Everyone who hasn't turned it on keeps today's exact behaviour.
             if (Properties.OptionsSecurityPage.Default.UseDpapiProtection)
+            {
+                Policy.ConnectionProtectionPolicy.EnsureDpapiAllowed();
                 return new DpapiCryptographyProvider();
+            }
 
             return new CryptoProviderFactoryFromSettings().Build();
         }

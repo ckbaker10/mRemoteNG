@@ -60,7 +60,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         public override void LoadSettings()
         {
-            mRemoteNG.Security.Policy.EncryptionPolicy.Apply();
+            mRemoteNG.Security.Policy.ConnectionProtectionPolicy.Apply();
             chkEncryptCompleteFile.Checked = Properties.OptionsSecurityPage.Default.EncryptCompleteConnectionsFile;
             chkUseDpapiProtection.Checked = Properties.OptionsSecurityPage.Default.UseDpapiProtection;
             comboBoxEncryptionEngine.Text = Enum.GetName(typeof(BlockCipherEngines), Properties.OptionsSecurityPage.Default.EncryptionEngine);
@@ -68,7 +68,8 @@ namespace mRemoteNG.UI.Forms.OptionsPages
                 Enum.GetName(typeof(BlockCipherModes), Properties.OptionsSecurityPage.Default.EncryptionBlockCipherMode);
             numberBoxKdfIterations.Maximum = Math.Max(numberBoxKdfIterations.Maximum,
                 Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations);
-            numberBoxKdfIterations.Value = Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations;
+            numberBoxKdfIterations.Value = Math.Max(numberBoxKdfIterations.Minimum,
+                Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations);
             UpdateCipherControlsEnabledState();
         }
 
@@ -79,7 +80,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             Properties.OptionsSecurityPage.Default.EncryptionEngine = (BlockCipherEngines)comboBoxEncryptionEngine.SelectedItem;
             Properties.OptionsSecurityPage.Default.EncryptionBlockCipherMode = (BlockCipherModes)comboBoxBlockCipher.SelectedItem;
             Properties.OptionsSecurityPage.Default.EncryptionKeyDerivationIterations = (int)numberBoxKdfIterations.Value;
-            mRemoteNG.Security.Policy.EncryptionPolicy.Apply();
+            mRemoteNG.Security.Policy.ConnectionProtectionPolicy.Apply();
         }
 
         /// <summary>
@@ -136,9 +137,11 @@ namespace mRemoteNG.UI.Forms.OptionsPages
                 DisableControl(numberBoxKdfIterations);
 
             var policy = mRemoteNG.Security.Policy.MachineSecurityPolicy.Current;
-            if (policy.RequireFullEncryption) DisableControl(chkEncryptCompleteFile);
-            if (policy.EncryptionEngine != null) DisableControl(comboBoxEncryptionEngine);
-            if (policy.BlockCipherMode != null) DisableControl(comboBoxBlockCipher);
+            if (!policy.AllowsDpapiConnectionProtection)
+            {
+                chkUseDpapiProtection.Checked = false;
+                DisableControl(chkUseDpapiProtection);
+            }
             if (policy.MinimumKdfIterations > 0)
                 numberBoxKdfIterations.Minimum = Math.Max(numberBoxKdfIterations.Minimum, policy.MinimumKdfIterations);
 

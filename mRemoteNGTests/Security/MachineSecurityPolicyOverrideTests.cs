@@ -11,13 +11,13 @@ namespace mRemoteNGTests.Security
         public void TestsRunWithUnmanagedMachinePolicyByDefault()
         {
             Assert.That(MachineSecurityPolicy.Current.HasPasswordRequirements, Is.False);
-            Assert.That(MachineSecurityPolicy.Current.RequireFullEncryption, Is.False);
+            Assert.That(MachineSecurityPolicy.Current.AllowsDpapiConnectionProtection, Is.True);
         }
 
         [Test]
         public void OverrideAppliesUntilDisposed()
         {
-            var managed = new SecurityPolicy(new Dictionary<string, object> { ["RequireFullEncryption"] = 1 });
+            var managed = new SecurityPolicy(new Dictionary<string, object> { ["RequireMasterPassword"] = 1 });
             SecurityPolicy before = MachineSecurityPolicy.Current;
 
             using (MachineSecurityPolicy.OverrideForTesting(managed))
