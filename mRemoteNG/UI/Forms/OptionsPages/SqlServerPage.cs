@@ -7,6 +7,7 @@ using mRemoteNG.Resources.Language;
 using System.Runtime.Versioning;
 using mRemoteNG.Config.Settings.Registry;
 using mRemoteNG.Security;
+using mRemoteNG.Security.SymmetricEncryption;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
